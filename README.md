@@ -1,4 +1,4 @@
-# arduino-uno-cooperative
+# Arduino Uno Cooperative
 
 ![Circuito simulado: Arduino Uno R3, seis LEDs azuis, LED verde do botão principal, três botões, LED laranja de atividade dos displays, LED amarelo de heartbeat do escalonador, OLED SSD1306 e TFT ILI9341](report/figures/front-cover.png)
 
@@ -11,8 +11,6 @@ bloqueante, um LED verde, dois indicadores de atividade, um OLED SSD1306
 diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 
 **Documentação completa:** [Português](docs/PT/README.md) · [English](docs/EN/README.md)
-
-**Repositório no GitHub:** <https://github.com/Argus-Kepheus/arduino-uno-cooperative>
 
 **Relatório técnico (Português):** [`report/relatorio.pdf`](report/relatorio.pdf)
 
@@ -46,7 +44,7 @@ A pasta `tests/` contém sketches independentes que isolam partes do hardware
 integrada — use `docs/PT/validation-checklist.md` (ou
 `docs/EN/validation-checklist.md`) para o roteiro completo de aceitação.
 
-## Limitações da versão-base
+## Limitações
 
 Não há RTOS, `TaskScheduler` ou alocação dinâmica após `setup()`. A versão-base
 prioriza legibilidade e observabilidade em vez de desempenho máximo; ver
