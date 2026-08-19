@@ -1,0 +1,330 @@
+% !TeX program = lualatex
+% !TeX encoding = UTF-8
+% !TeX spellcheck = pt_BR
+
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{fontspec}
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Latin Modern Mono}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\geometry{top=2.2cm,bottom=2.2cm,left=1.5cm,right=1.5cm}
+\usepackage{microtype}
+\usepackage{ragged2e}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\definecolor{linkblue}{HTML}{1D4ED8}
+\definecolor{codegray}{HTML}{F3F4F6}
+\definecolor{rulegray}{HTML}{D1D5DB}
+\definecolor{commentgreen}{HTML}{166534}
+\definecolor{keywordblue}{HTML}{1D4ED8}
+\definecolor{stringred}{HTML}{B91C1C}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  urlcolor=linkblue,
+  citecolor=linkblue,
+  pdfauthor={Sergio Cordero Calvimontes},
+  pdftitle={Relatório técnico do projeto arduino-uno-cooperative},
+  pdfsubject={Concorrência cooperativa no Arduino Uno R3 / ATmega328P}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{arduino-uno-cooperative}
+\rhead{Relatório técnico}
+\cfoot{Página \thepage\ de \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{14.5pt}
+
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.25em,topsep=0.4em}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=0.25em,topsep=0.4em}
+\setlength{\parindent}{1.2cm}
+\setlength{\parskip}{0.25em}
+\setlength{\emergencystretch}{2em}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\lstdefinestyle{cppstyle}{
+  language=C++,
+  basicstyle=\small\ttfamily,
+  backgroundcolor=\color{codegray},
+  frame=single,
+  rulecolor=\color{rulegray},
+  numbers=left,
+  numberstyle=\scriptsize\color{gray},
+  numbersep=8pt,
+  keywordstyle=\color{keywordblue}\bfseries,
+  commentstyle=\color{commentgreen},
+  stringstyle=\color{stringred},
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  tabsize=2
+}
+\lstset{style=cppstyle}
+\renewcommand{\lstlistingname}{Listagem}
+
+\newcommand{\ProjectTitle}{Arduino Uno Cooperative}
+\newcommand{\AuthorWebsite}{https://argus-kepheus.github.io/sergio-cordero-calvimontes/\#home}
+\newcommand{\AuthorName}{\href{\AuthorWebsite}{Sergio Cordero Calvimontes}}
+\newcommand{\RevisionDate}{19 de agosto de 2026}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1.5cm}
+  {\Large \textbf{Projeto pessoal}\par}
+  \vspace{0.7cm}
+  {\large Explorando concorrência cooperativa em um microcontrolador AVR de 8 bits\par}
+  \vfill
+  {\huge\bfseries \ProjectTitle\par}
+  \vspace{0.8cm}
+  {\Large Relatório técnico da arquitetura-base\par}
+  \vfill
+  \begin{tabular}{rl}
+    Autor: & \AuthorName \\
+    Plataforma de simulação: & Wokwi no navegador \\
+    Linguagem: & C++ / Arduino \\
+    Placa-alvo: & Arduino Uno R3 / ATmega328P \\
+  \end{tabular}
+  \vfill
+  {\large \RevisionDate\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introdução}
+
+O projeto \texttt{arduino-uno-cooperative} explora concorrência cooperativa em
+um Arduino Uno R3 baseado no ATmega328P. A proposta deriva conceitualmente de
+um projeto anterior em ESP32 com MicroPython e \texttt{asyncio}, mas não procura
+traduzir literalmente aquela implementação. O objetivo é preservar as ideias de
+múltiplas atividades lógicas, temporização não bloqueante, observabilidade e
+degradação controlada sob restrições substancialmente mais severas de CPU, SRAM,
+flash e quantidade de pinos.
+
+A versão-base foi deliberadamente concebida sem RTOS, threads ou
+\texttt{TaskScheduler}. Em seu lugar, utiliza um escalonador estático próprio,
+com onze tarefas cooperativas. Seis dessas tarefas pertencem aos seis LEDs azuis,
+mantidos independentes mesmo compartilhando o mesmo intervalo nominal.
+
+\section{Objetivos técnicos}
+
+Os objetivos principais são:
+
+\begin{itemize}
+  \item implementar onze tarefas cooperativas em um único fluxo físico;
+  \item impedir espera bloqueante por meio da proibição de \texttt{delay()} na operação normal;
+  \item observar tempo de callback, atraso, overruns, passagens e SRAM;
+  \item operar simultaneamente LEDs, botões, serial, OLED e TFT;
+  \item usar o próprio limite do ATmega328P como elemento do experimento;
+  \item manter uma implementação-base legível para comparações futuras.
+\end{itemize}
+
+\section{Plataforma e distribuição de recursos}
+
+A Tabela~\ref{tab:pinagem} apresenta a pinagem consolidada.
+
+\begin{table}[htbp]
+\centering
+\caption{Pinagem oficial da arquitetura-base.}
+\label{tab:pinagem}
+\begin{tabularx}{\textwidth}{@{}lY@{}}
+\toprule
+Pino & Função \\
+\midrule
+D0/RX & recepção serial \\
+D1/TX & transmissão serial \\
+D2--D7 & seis LEDs azuis independentes \\
+D8 & LED verde do botão principal \\
+D9 & TFT D/C \\
+D10 & TFT CS \\
+D11 & TFT MOSI em SPI por software \\
+D12 & LED laranja de atividade/ociosidade dos displays \\
+D13 & TFT SCK em SPI por software e LED \texttt{L} integrado \\
+A0 & botão principal \\
+A1 & diminuir intervalo \\
+A2 & aumentar intervalo \\
+A3 & heartbeat amarelo do escalonador \\
+A4/SDA & OLED SSD1306 \\
+A5/SCL & OLED SSD1306 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A UART permanece preservada em D0/D1. O OLED utiliza o periférico I2C/TWI de
+hardware. A TFT mantém fisicamente D11 como MOSI e D13 como SCK, porém utiliza o
+caminho de SPI por software da biblioteca Adafruit. Essa decisão permite manter
+D12 como GPIO de saída para o indicador laranja.
+
+\section{Modelo de concorrência}
+
+\subsection{Escalonador nativo}
+
+Cada tarefa é descrita por um ponteiro de função, próximo instante de execução e
+período. A estrutura é propositalmente pequena:
+
+\begin{lstlisting}
+struct Task {
+    TaskCallback callback;
+    TickMs nextRunMs;
+    uint16_t periodMs;
+};
+\end{lstlisting}
+
+Não existem pilhas privadas por tarefa. Uma tarefa executa até retornar; somente
+então outra pode ser atendida. Por isso, callbacks longos são tratados como um
+problema de projeto e devem ser decompostos em etapas.
+
+\subsection{Relógio modular}
+
+O escalonador utiliza os 16 bits inferiores de \texttt{millis()}. As comparações
+são feitas por diferenças modulares assinadas. Como todos os períodos são muito
+menores que 32768 ms, o sistema atravessa a transição \texttt{65535 -> 0} sem
+precisar de tratamento especial de reset do relógio.
+
+\subsection{Política de overrun}
+
+Se um callback ou outra atividade atrasar o sistema a ponto de uma tarefa perder
+uma ou mais liberações, essas liberações são descartadas. O escalonador não
+executa múltiplos callbacks em rajada para recuperar o passado. A quantidade
+descartada alimenta a métrica \texttt{OVR}.
+
+\section{Tarefas da aplicação}
+
+\begin{table}[htbp]
+\centering
+\caption{Tarefas da configuração-base.}
+\begin{tabularx}{\textwidth}{@{}Y l Y@{}}
+\toprule
+Tarefa & Período & Responsabilidade \\
+\midrule
+\texttt{blinkLed1} a \texttt{blinkLed6} & 125--4000 ms & seis LEDs independentes \\
+\texttt{scanButtons} & 5 ms & leitura e debounce \\
+\texttt{sampleMetrics} & 250 ms & consolidar métricas \\
+\texttt{serviceDisplays} & 20 ms & atualizar TFT/OLED em etapas \\
+\texttt{printStatus} & 1000 ms & diagnóstico serial \\
+\texttt{schedulerHeartbeat} & 100 ms & indicador amarelo em A3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Os seis períodos dos LEDs são 125, 250, 500, 1000, 2000 e 4000 ms. O valor
+inicial é 500 ms. A mudança de período procura preservar a posição relativa de
+cada tarefa em seu ciclo atual.
+
+\section{Entradas e debounce}
+
+Os três botões são ativos em nível baixo e utilizam \texttt{INPUT\_PULLUP}. Uma
+única tarefa de varredura atende os três botões. O debounce nominal é 30 ms,
+com amostragem a cada 5 ms. O botão principal gera eventos de pressão e
+liberação; os botões de intervalo reagem somente à pressão e não repetem a ação
+quando permanecem pressionados.
+
+\section{Subsistema de displays}
+
+\subsection{TFT ILI9341}
+
+A TFT é a interface principal e apresenta dois gráficos, campos numéricos e um
+console circular de eventos. A aplicação não mantém framebuffer da TFT e evita
+redesenhos completos. Cada gráfico avança apenas uma coluna por amostra, e
+campos textuais possuem cache para que valores inalterados não sejam novamente
+transmitidos.
+
+\subsection{OLED SSD1306}
+
+O OLED funciona como painel diagnóstico compacto. A biblioteca
+\texttt{SSD1306Ascii} evita reservar o framebuffer de 1024 bytes que consumiria
+metade da SRAM do ATmega328P. Sua atualização é limitada aproximadamente a 1 Hz.
+
+\subsection{Pipeline cooperativo}
+
+Cada amostra visual é congelada em \texttt{displaySnapshot}. A atualização é
+então dividida em seis etapas: gráfico de \texttt{APP BUSY}, gráfico de SRAM,
+três linhas de métricas TFT e OLED. Esse mecanismo reduz o maior bloco gráfico
+executado em uma única passagem.
+
+\section{Indicadores físicos}
+
+O LED amarelo em A3 é alternado pela tarefa de heartbeat. O LED laranja em D12
+fica em nível alto quando o subsistema de displays está logicamente ocioso e em
+nível baixo durante operações instrumentadas. D13 também é conectado ao LED
+\texttt{L} da própria placa, portanto atividade de clock da TFT pode aparecer
+nesse LED integrado.
+
+\section{Instrumentação}
+
+A versão-base expõe:
+
+\begin{description}
+  \item[APP BUSY:] fração da janela de amostragem gasta dentro de callbacks instrumentados;
+  \item[SRAM FREE:] estimativa instantânea da distância entre heap e pilha;
+  \item[RAM LOW:] menor estimativa de SRAM livre amostrada desde a inicialização;
+  \item[PASS/s:] passagens do escalonador por segundo;
+  \item[MAX CALLBACK:] maior duração individual de callback;
+  \item[MAX LATE:] maior atraso observado em relação à liberação programada;
+  \item[OVR:] quantidade de liberações perdidas e descartadas.
+\end{description}
+
+\texttt{APP BUSY} não é apresentado como uso absoluto de CPU porque não inclui
+perfeitamente todos os custos fora dos callbacks.
+
+\section{Estratégia de memória}
+
+A meta é manter pelo menos 512 bytes de SRAM livre estimada e não aceitar a
+configuração integrada abaixo de 400 bytes sem nova revisão. A aplicação evita
+\texttt{String}, \texttt{new}, \texttt{malloc}, containers dinâmicos e grandes
+buffers. Estados pequenos são representados por máscaras e filas circulares de
+tamanho fixo.
+
+\section{Validação}
+
+A pasta \texttt{tests/} contém sketches isolados destinados ao Wokwi web. Eles
+não constituem testes automatizados do firmware integrado; servem para isolar
+fiação, displays, botões e o escalonador. O arquivo
+\texttt{docs/PT/validation-checklist.md} contém o roteiro de aceitação da versão
+integrada.
+
+Os cenários essenciais incluem operação a 125 ms com ambos os displays e serial
+ativos, uso rápido dos três botões, geração de eventos suficiente para circular
+o console, travessia do overflow modular e execução prolongada de pelo menos
+15 minutos.
+
+\section{Limitações e trabalhos futuros}
+
+A versão-base não pretende ser a implementação de maior desempenho possível.
+Permanecem abertos para trabalhos futuros: comparação com \texttt{TaskScheduler}
+e AceRoutine, redistribuição de pinos para recuperar SPI de hardware, acesso
+direto a registradores \texttt{PORT}, watchdog, prioridades, medição de jitter,
+high-water mark real de pilha e persistência em EEPROM.
+
+Manter esses itens fora da versão-base é intencional: o projeto precisa primeiro
+fornecer um ponto de referência legível, instrumentado e reproduzível contra o
+qual otimizações posteriores possam ser comparadas.
+
+\section{Conclusão}
+
+O \texttt{arduino-uno-cooperative} transforma as limitações do Arduino Uno em
+parte do próprio experimento. Em vez de ocultar o custo das operações por meio de
+um sistema operacional ou de abstrações de alto nível, a aplicação torna
+explícitos o escalonamento, os atrasos, o consumo de SRAM e a degradação quando
+prazos são perdidos. A arquitetura-base fica, assim, adequada tanto à simulação
+no Wokwi quanto a futuras comparações de implementação no ATmega328P.
+
+\end{document}

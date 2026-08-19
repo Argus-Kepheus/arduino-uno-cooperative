@@ -1,0 +1,226 @@
+{
+  "version": 1,
+  "author": "Sergio Cordero Calvimontes",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "top": 45,
+      "left": 308.6,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "blue-led-1",
+      "top": 44.4,
+      "left": 282.2,
+      "attrs": { "color": "blue", "label": "LED 1 - D2" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "blue-r-1",
+      "top": 128.2,
+      "left": 277.55,
+      "rotate": 270,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "blue-led-2",
+      "top": 44.4,
+      "left": 263,
+      "attrs": { "color": "blue", "label": "LED 2 - D3" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "blue-r-2",
+      "top": 128.2,
+      "left": 258.35,
+      "rotate": 270,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "blue-led-3",
+      "top": 44.4,
+      "left": 243.8,
+      "attrs": { "color": "blue", "label": "LED 3 - D4" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "blue-r-3",
+      "top": 128.2,
+      "left": 239.15,
+      "rotate": 270,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "blue-led-4",
+      "top": 44.4,
+      "left": 224.6,
+      "attrs": { "color": "blue", "label": "LED 4 - D5" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "blue-r-4",
+      "top": 128.2,
+      "left": 219.95,
+      "rotate": 270,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "blue-led-5",
+      "top": 44.4,
+      "left": 205.4,
+      "attrs": { "color": "blue", "label": "LED 5 - D6" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "blue-r-5",
+      "top": 128.2,
+      "left": 200.75,
+      "rotate": 270,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "blue-led-6",
+      "top": 44.4,
+      "left": 186.2,
+      "attrs": { "color": "blue", "label": "LED 6 - D7" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "blue-r-6",
+      "top": 128.2,
+      "left": 181.55,
+      "rotate": 270,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "green-led",
+      "top": -90,
+      "left": 483.8,
+      "attrs": { "color": "green", "label": "Botao principal - D8" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "green-r",
+      "top": 51.4,
+      "left": 536.75,
+      "rotate": 270,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "display-idle-led",
+      "top": 399.6,
+      "left": 359,
+      "attrs": { "color": "orange", "label": "Display idle - D12" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "display-idle-r",
+      "top": 484.25,
+      "left": 421,
+      "rotate": 180,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "scheduler-led",
+      "top": 399.6,
+      "left": 512.6,
+      "attrs": { "color": "yellow", "label": "Scheduler heartbeat - A3" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "scheduler-r",
+      "top": 379.2,
+      "left": 517.85,
+      "rotate": 90,
+      "attrs": { "value": "1k" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "main-button",
+      "top": -98.3,
+      "left": 440.7,
+      "rotate": 270,
+      "attrs": { "color": "green", "label": "Principal - A0", "key": "p" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "decrease-button",
+      "top": -80.2,
+      "left": 355.2,
+      "attrs": { "color": "blue", "label": "Diminuir intervalo - A1", "key": "q" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "increase-button",
+      "top": -166.6,
+      "left": 355.2,
+      "attrs": { "color": "blue", "label": "Aumentar intervalo - A2", "key": "s" }
+    },
+    {
+      "type": "board-ssd1306",
+      "id": "oled",
+      "top": 396.74,
+      "left": 393.83,
+      "attrs": { "i2cAddress": "0x3c" }
+    },
+    { "type": "wokwi-ili9341", "id": "tft", "top": -335.2, "left": 518.1, "attrs": {} }
+  ],
+  "connections": [
+    [ "uno:2", "blue-r-1:1", "blue", [ "h28.8", "v52.1", "h-259.2" ] ],
+    [ "blue-r-1:2", "blue-led-1:A", "blue", [] ],
+    [ "uno:3", "blue-r-2:1", "blue", [ "h38.4", "v71.2", "h-288" ] ],
+    [ "blue-r-2:2", "blue-led-2:A", "blue", [] ],
+    [ "uno:4", "blue-r-3:1", "blue", [ "h48", "v90.3", "h-316.8" ] ],
+    [ "blue-r-3:2", "blue-led-3:A", "blue", [] ],
+    [ "uno:5", "blue-r-4:1", "blue", [ "h57.6", "v109.4", "h-345.6" ] ],
+    [ "blue-r-4:2", "blue-led-4:A", "blue", [] ],
+    [ "uno:6", "blue-r-5:1", "blue", [ "h67.2", "v128.5", "h-374.4" ] ],
+    [ "blue-r-5:2", "blue-led-5:A", "blue", [] ],
+    [ "uno:7", "blue-r-6:1", "blue", [ "h76.8", "v147.6", "h-403.2" ] ],
+    [ "blue-r-6:2", "blue-led-6:A", "blue", [] ],
+    [ "uno:8", "green-r:1", "limegreen", [] ],
+    [ "green-r:2", "green-led:A", "limegreen", [ "v-27.6", "h-86.4" ] ],
+    [ "display-idle-r:2", "display-idle-led:A", "orange", [ "h-46.8" ] ],
+    [ "scheduler-r:2", "scheduler-led:A", "yellow", [ "v37.2", "h-19.2" ] ],
+    [ "uno:A0", "main-button:1.l", "green", [ "h-9.5", "v-217", "h115.2" ] ],
+    [ "uno:A1", "decrease-button:1.l", "cyan", [ "h-19.1", "v-303.3" ] ],
+    [ "uno:A2", "increase-button:1.l", "cyan", [ "h-28.7", "v-370.4" ] ],
+    [ "uno:5V", "oled:VCC", "red", [ "h-38.3", "v205.4", "h124.65" ] ],
+    [ "uno:A4", "oled:SDA", "white", [ "h-19.1", "v100.2", "h124.73" ] ],
+    [ "uno:A5", "oled:SCL", "gray", [ "h-9.5", "v100.3", "h105.3" ] ],
+    [ "uno:5V", "tft:VCC", "red", [ "h-38.3", "v-178.6", "h278.4" ] ],
+    [ "uno:10", "tft:CS", "violet", [] ],
+    [ "uno:9", "tft:D/C", "brown", [] ],
+    [ "uno:11", "tft:MOSI", "cyan", [] ],
+    [ "uno:13", "tft:SCK", "gray", [] ],
+    [ "uno:GND.1", "tft:GND", "black", [ "h0" ] ],
+    [ "uno:GND.2", "blue-led-6:C", "black", [ "h0" ] ],
+    [ "display-idle-led:C", "oled:GND", "black", [ "v9.6", "h-18.8", "v-67.2", "h86.4" ] ],
+    [ "decrease-button:2.l", "tft:GND", "black", [ "h-9.6", "v29", "h220.8" ] ],
+    [ "main-button:2.l", "tft:GND", "black", [ "v9.6", "h182.6" ] ],
+    [ "blue-led-5:C", "uno:GND.2", "black", [ "v0" ] ],
+    [ "blue-led-4:C", "uno:GND.2", "black", [ "v0" ] ],
+    [ "blue-led-3:C", "uno:GND.2", "black", [ "v0" ] ],
+    [ "blue-led-2:C", "uno:GND.2", "black", [ "v0" ] ],
+    [ "blue-led-1:C", "uno:GND.2", "black", [ "v0" ] ],
+    [ "oled:GND", "uno:GND.2", "black", [ "v-19.2", "h-230.4", "v-205.5" ] ],
+    [ "oled:GND", "scheduler-led:C", "black", [ "v-19.2", "h76.8", "v67.2", "h18.8" ] ],
+    [ "increase-button:2.l", "decrease-button:2.l", "black", [ "h-9.6", "v86.4" ] ],
+    [ "main-button:2.l", "green-led:C", "black", [ "v9.6", "h29", "v-153.6" ] ],
+    [ "uno:A3", "scheduler-r:1", "gold", [ "h-28.7", "v42.5", "h230.4" ] ],
+    [ "display-idle-r:1", "uno:12", "orange", [ "h76.8", "v-346.1" ] ]
+  ],
+  "dependencies": {}
+}

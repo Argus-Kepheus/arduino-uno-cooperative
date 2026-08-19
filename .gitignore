@@ -1,0 +1,33 @@
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arduino build output
+build/
+*.elf
+*.hex
+*.bin
+*.eep
+*.map
+
+# LaTeX build artifacts (the final report PDF is versioned)
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
+report/*.lof
+report/*.lot
+report/*.bbl
+report/*.blg
+report/*.run.xml
+report/*.bcf
+report/*.nav
+report/*.snm
+report/*.vrb
+report/*.xdv
