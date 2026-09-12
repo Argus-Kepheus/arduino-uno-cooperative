@@ -63,12 +63,15 @@ class DebouncedButton {
   }
 
 
+  /*
+   * rawPressed is sampled by the caller rather than read here, so that a
+   * caller polling several buttons on the same port can take one port
+   * read and share it instead of paying a digitalRead() per button.
+   */
+
   Event poll(
-      uint16_t nowMs) {
-
-
-    const bool rawPressed =
-        readPressed();
+      uint16_t nowMs,
+      bool rawPressed) {
 
 
     if (

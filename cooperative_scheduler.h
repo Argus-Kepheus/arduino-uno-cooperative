@@ -114,6 +114,20 @@ class CooperativeScheduler {
     ++passesWindow_;
 
 
+    /*
+     * Read once per pass, not once per task.
+     *
+     * Most passes find no task due, so this is the hottest line in the
+     * firmware. A task whose release lands while an earlier callback in
+     * this same pass is still running simply gets picked up on the next
+     * pass, which follows immediately since loop() calls execute() back
+     * to back.
+     */
+
+    const TickMs nowMs =
+        (TickMs)millis();
+
+
     for (
         uint8_t i = 0;
         i < taskCount_;
@@ -122,10 +136,6 @@ class CooperativeScheduler {
 
       Task &task =
           tasks_[i];
-
-
-      const TickMs nowMs =
-          (TickMs)millis();
 
 
       /*

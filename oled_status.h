@@ -150,9 +150,15 @@ class OledStatus {
     DisplayActivity::busyBegin();
 
 
+    snprintf_P(
+        line,
+        sizeof(line),
+        PSTR("UNO COOPERATIVE"));
+
+
     printLine(
         0,
-        "UNO COOPERATIVE");
+        line);
 
 
     snprintf_P(
