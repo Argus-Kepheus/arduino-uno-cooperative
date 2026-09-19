@@ -30,14 +30,23 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 
 | Caminho | Conteúdo |
 |---|---|
-| `sketch.ino` + `*.h` | Firmware Arduino/C++ (escalonador, botões, métricas, displays) |
-| `diagram.json` | Circuito e layout do Wokwi |
-| `libraries.txt` | Dependências instaladas pelo Wokwi |
+| `sketch.ino` + módulos `*.h` | Firmware Arduino/C++ (escalonador, botões, métricas, displays) |
+| `config/` | Fontes canônicas de hardware, runtime, contratos AVR e toolchain |
+| `project_config.h` | Header gerado a partir de `config/` e consumido pelo firmware |
+| `diagram.json` | Circuito e geometria/layout do Wokwi; semântica elétrica validada contra `config/hardware.json` |
+| `libraries.txt` | Lista gerada de dependências do Wokwi |
+| `tools/` | Geração determinística e validação estática do repositório |
 | `docs/PT/` e `docs/EN/` | Documentação técnica bilíngue |
 | `tests/` | Sketches diagnósticos isolados para Wokwi web |
 | `report/` | Relatório técnico em LaTeX e PDF |
 
 ## Validação
+
+A consistência estática entre `config/`, artefatos gerados, firmware e circuito pode ser verificada com:
+
+```text
+python tools/validate_repository.py
+```
 
 A pasta `tests/` contém sketches independentes que isolam partes do hardware
 (LEDs, botões, displays, escalonador). Eles não substituem a validação
