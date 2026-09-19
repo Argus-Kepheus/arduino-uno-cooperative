@@ -36,7 +36,7 @@
         "arduino_pin": "D1",
         "signal": "TX"
       },
-      "reserved_for_application_peripherals": false
+      "available_for_application_peripherals": false
     },
     "oled_i2c": {
       "mode": "hardware",
@@ -201,14 +201,19 @@
         "id": "tft",
         "wokwi_type": "wokwi-ili9341",
         "controller": "ILI9341",
-        "resolution_px": {
-          "width": 320,
-          "height": 240
-        },
         "interface": "software SPI",
         "bus": "tft_spi",
         "supply_v": 5,
-        "role": "primary visual interface and event dashboard"
+        "role": "primary visual interface and event dashboard",
+        "native_resolution_px": {
+          "width": 240,
+          "height": 320
+        },
+        "configured_rotation": 1,
+        "logical_resolution_px": {
+          "width": 320,
+          "height": 240
+        }
       }
     }
   },
