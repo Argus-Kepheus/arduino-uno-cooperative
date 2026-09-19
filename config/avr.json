@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0",
+  "authority": {
+    "status": "canonical",
+    "domain": "ATmega328P architecture facts, direct-port fast paths, scheduler modular-time invariants and registration-order assumptions",
+    "baseline_commit": "c77129ee002ab68e510465770d4d8eaa45cd6b19",
+    "provenance": [
+      "sketch.ino",
+      "cooperative_scheduler.h",
+      "docs/EN/scheduler.md",
+      "docs/EN/pinout.md"
+    ],
+    "exclusions": {
+      "component_assignments": "config/hardware.json",
+      "runtime_periods_and_limits": "config/runtime.json",
+      "build_toolchain": "config/toolchain.json"
+    }
+  },
+  "microcontroller": {
+    "family": "AVR",
+    "model": "ATmega328P",
+    "clock_hz": 16000000,
+    "sram_bytes": 2048
+  },
+  "scheduler": {
+    "tick_type": "uint16_t",
+    "tick_bits": 16,
+    "modular_range_ms": 65536,
+    "signed_comparison_half_range_ms": 32768,
+    "required_period_relation": "every scheduled period and first delay must be < 32768 ms",
+    "maximum_tasks": 11,
+    "expected_registered_tasks": 11,
+    "registration_order": [
+      "blinkLed1",
+      "blinkLed2",
+      "blinkLed3",
+      "blinkLed4",
+      "blinkLed5",
+      "blinkLed6",
+      "scanButtons",
+      "sampleMetrics",
+      "serviceDisplays",
+      "printStatus",
+      "schedulerHeartbeat"
+    ],
+    "first_blue_task_id": 0,
+    "blue_task_count": 6,
+    "invariant": "task IDs 0..5 must remain the six blue-LED tasks because setBlinkIntervalIndex() updates them arithmetically without a task-ID table"
+  },
+  "fast_io": {
+    "blue_leds": {
+      "enabled_on_avr": true,
+      "arduino_pins": [
+        "D2",
+        "D3",
+        "D4",
+        "D5",
+        "D6",
+        "D7"
+      ],
+      "avr_port": "PORTD",
+      "avr_bits": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "operation": "direct XOR toggle",
+      "invariant": "pins must remain contiguous D2..D7 and map one-to-one to PORTD bits 2..7"
+    },
+    "buttons": {
+      "enabled_on_avr": true,
+      "arduino_pins": [
+        "A0",
+        "A1",
+        "A2"
+      ],
+      "avr_input_register": "PINC",
+      "avr_bits": [
+        0,
+        1,
+        2
+      ],
+      "active_low": true,
+      "operation": "single PINC read shared by three buttons",
+      "invariant": "main/decrease/increase buttons must remain A0/A1/A2 in that order for the current fast path"
+    },
+    "scheduler_heartbeat": {
+      "enabled_on_avr": true,
+      "arduino_pin": "A3",
+      "avr_port": "PORTC",
+      "avr_bit": 3,
+      "operation": "direct XOR toggle",
+      "invariant": "heartbeat pin must remain A3/PC3 for the current fast path"
+    }
+  },
+  "spi_relationships": {
+    "hardware_spi_pins": {
+      "mosi": "D11",
+      "miso": "D12",
+      "sck": "D13"
+    },
+    "project_mode": "software SPI",
+    "consequences": [
+      "D12 remains available as the orange display-activity GPIO.",
+      "D13 remains TFT SCK and is also connected to the Uno built-in L LED."
+    ]
+  },
+  "i2c_relationships": {
+    "hardware_twi_pins": {
+      "sda": "A4",
+      "scl": "A5"
+    }
+  },
+  "validation_rules": [
+    "The largest derived blink interval must remain below the scheduler signed-comparison half range.",
+    "All fixed scheduler periods and first delays must remain below 32768 ms.",
+    "Changing any fast-path pin assignment requires changing or disabling the corresponding AVR direct-port implementation."
+  ]
+}
