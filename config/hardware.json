@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.0",
+  "authority": {
+    "status": "canonical",
+    "domain": "board identity, components, GPIO assignments, buses, passive values, electrical roles, Wokwi identifiers",
+    "baseline_commit": "c77129ee002ab68e510465770d4d8eaa45cd6b19",
+    "provenance": [
+      "project_config.h",
+      "diagram.json",
+      "docs/EN/pinout.md",
+      "docs/EN/displays.md"
+    ],
+    "exclusions": {
+      "runtime_policy": "config/runtime.json",
+      "avr_architecture_and_fast_io_contracts": "config/avr.json",
+      "toolchain_and_library_versions": "config/toolchain.json",
+      "wokwi_geometry": "diagram.json"
+    }
+  },
+  "board": {
+    "id": "uno",
+    "wokwi_type": "wokwi-arduino-uno",
+    "board_name": "Arduino Uno R3",
+    "microcontroller": "ATmega328P",
+    "logic_voltage_v": 5,
+    "ground_reference": "GND"
+  },
+  "buses": {
+    "uart0": {
+      "role": "serial diagnostics",
+      "rx": {
+        "arduino_pin": "D0",
+        "signal": "RX"
+      },
+      "tx": {
+        "arduino_pin": "D1",
+        "signal": "TX"
+      },
+      "reserved_for_application_peripherals": false
+    },
+    "oled_i2c": {
+      "mode": "hardware",
+      "peripheral": "TWI/I2C",
+      "sda": {
+        "arduino_pin": "A4",
+        "signal": "SDA"
+      },
+      "scl": {
+        "arduino_pin": "A5",
+        "signal": "SCL"
+      },
+      "frequency_hz": 400000
+    },
+    "tft_spi": {
+      "mode": "software",
+      "write_only": true,
+      "dc": {
+        "arduino_pin": "D9"
+      },
+      "cs": {
+        "arduino_pin": "D10"
+      },
+      "mosi": {
+        "arduino_pin": "D11"
+      },
+      "sck": {
+        "arduino_pin": "D13"
+      },
+      "miso": null,
+      "rationale": "Keep D12 available as a normal GPIO for the display-activity LED."
+    }
+  },
+  "components": {
+    "blinking_leds": [
+      {
+        "id": "blue-led-1",
+        "arduino_pin": "D2",
+        "gpio_number": 2,
+        "color": "blue",
+        "resistor_id": "blue-r-1",
+        "resistor_ohm": 1000
+      },
+      {
+        "id": "blue-led-2",
+        "arduino_pin": "D3",
+        "gpio_number": 3,
+        "color": "blue",
+        "resistor_id": "blue-r-2",
+        "resistor_ohm": 1000
+      },
+      {
+        "id": "blue-led-3",
+        "arduino_pin": "D4",
+        "gpio_number": 4,
+        "color": "blue",
+        "resistor_id": "blue-r-3",
+        "resistor_ohm": 1000
+      },
+      {
+        "id": "blue-led-4",
+        "arduino_pin": "D5",
+        "gpio_number": 5,
+        "color": "blue",
+        "resistor_id": "blue-r-4",
+        "resistor_ohm": 1000
+      },
+      {
+        "id": "blue-led-5",
+        "arduino_pin": "D6",
+        "gpio_number": 6,
+        "color": "blue",
+        "resistor_id": "blue-r-5",
+        "resistor_ohm": 1000
+      },
+      {
+        "id": "blue-led-6",
+        "arduino_pin": "D7",
+        "gpio_number": 7,
+        "color": "blue",
+        "resistor_id": "blue-r-6",
+        "resistor_ohm": 1000
+      }
+    ],
+    "green_led": {
+      "id": "green-led",
+      "arduino_pin": "D8",
+      "gpio_number": 8,
+      "color": "green",
+      "resistor_id": "green-r",
+      "resistor_ohm": 1000,
+      "role": "reflect stable main-button pressed state"
+    },
+    "status_leds": {
+      "display_idle": {
+        "id": "display-idle-led",
+        "arduino_pin": "D12",
+        "gpio_number": 12,
+        "color": "orange",
+        "resistor_id": "display-idle-r",
+        "resistor_ohm": 1000,
+        "active_level": "HIGH",
+        "role": "HIGH when display subsystem is logically idle; LOW during instrumented display operations"
+      },
+      "scheduler_heartbeat": {
+        "id": "scheduler-led",
+        "arduino_pin": "A3",
+        "color": "yellow",
+        "resistor_id": "scheduler-r",
+        "resistor_ohm": 1000,
+        "role": "scheduler heartbeat"
+      }
+    },
+    "buttons": {
+      "main": {
+        "id": "main-button",
+        "arduino_pin": "A0",
+        "active_level": "LOW",
+        "input_mode": "INPUT_PULLUP",
+        "released_level": "HIGH",
+        "pressed_level": "LOW",
+        "connection_when_pressed": "GND",
+        "wokwi_key": "p"
+      },
+      "decrease_interval": {
+        "id": "decrease-button",
+        "arduino_pin": "A1",
+        "active_level": "LOW",
+        "input_mode": "INPUT_PULLUP",
+        "released_level": "HIGH",
+        "pressed_level": "LOW",
+        "connection_when_pressed": "GND",
+        "wokwi_key": "q"
+      },
+      "increase_interval": {
+        "id": "increase-button",
+        "arduino_pin": "A2",
+        "active_level": "LOW",
+        "input_mode": "INPUT_PULLUP",
+        "released_level": "HIGH",
+        "pressed_level": "LOW",
+        "connection_when_pressed": "GND",
+        "wokwi_key": "s"
+      }
+    },
+    "displays": {
+      "oled": {
+        "id": "oled",
+        "wokwi_type": "board-ssd1306",
+        "controller": "SSD1306",
+        "resolution_px": {
+          "width": 128,
+          "height": 64
+        },
+        "interface": "I2C",
+        "bus": "oled_i2c",
+        "address_hex": "0x3C",
+        "supply_v": 5,
+        "role": "compact diagnostic panel"
+      },
+      "tft": {
+        "id": "tft",
+        "wokwi_type": "wokwi-ili9341",
+        "controller": "ILI9341",
+        "resolution_px": {
+          "width": 320,
+          "height": 240
+        },
+        "interface": "software SPI",
+        "bus": "tft_spi",
+        "supply_v": 5,
+        "role": "primary visual interface and event dashboard"
+      }
+    }
+  },
+  "electrical": {
+    "common_ground": true,
+    "led_resistor_ohm": 1000,
+    "display_supply_v": 5,
+    "button_reference": "GND when pressed"
+  },
+  "notes": [
+    "D13 is also connected to the Arduino Uno built-in L LED, so TFT clock activity may be visible there.",
+    "Wokwi layout coordinates and wire geometry remain authoritative only in diagram.json."
+  ]
+}
