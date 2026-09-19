@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "authority": {
+    "status": "canonical",
+    "domain": "board build target, simulator project identity, Arduino CLI/core pinning status, and external library versions",
+    "baseline_commit": "c77129ee002ab68e510465770d4d8eaa45cd6b19",
+    "provenance": [
+      "libraries.txt",
+      "README.md",
+      "wokwi-project.txt",
+      "docs/EN/README.md"
+    ],
+    "exclusions": {
+      "hardware_wiring": "config/hardware.json",
+      "runtime_policy": "config/runtime.json",
+      "avr_runtime_invariants": "config/avr.json"
+    }
+  },
+  "build_target": {
+    "board_name": "Arduino Uno R3",
+    "fqbn": "arduino:avr:uno"
+  },
+  "arduino_cli": {
+    "pinned": false,
+    "version": null,
+    "note": "The repository does not currently pin an arduino-cli version."
+  },
+  "arduino_avr_core": {
+    "package": "arduino:avr",
+    "pinned": false,
+    "version": null,
+    "note": "The repository targets Arduino Uno/ATmega328P but does not currently pin an Arduino AVR Core version."
+  },
+  "simulator": {
+    "provider": "Wokwi",
+    "project_url": "https://wokwi.com/projects/472743544463123457",
+    "source_file": "wokwi-project.txt"
+  },
+  "libraries": [
+    {
+      "name": "Adafruit GFX Library",
+      "version": "1.12.6"
+    },
+    {
+      "name": "Adafruit ILI9341",
+      "version": "1.6.3"
+    },
+    {
+      "name": "Adafruit BusIO",
+      "version": "1.17.4"
+    },
+    {
+      "name": "SSD1306Ascii",
+      "version": "1.3.5"
+    }
+  ],
+  "libraries_file": "libraries.txt"
+}
