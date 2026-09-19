@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "authority": {
+    "status": "canonical",
+    "domain": "runtime timing, scheduler periods, debounce policy, blink-speed policy, serial rate and operational SRAM margins",
+    "baseline_commit": "c77129ee002ab68e510465770d4d8eaa45cd6b19",
+    "provenance": [
+      "project_config.h",
+      "sketch.ino",
+      "docs/EN/scheduler.md",
+      "docs/EN/validation-checklist.md"
+    ],
+    "exclusions": {
+      "physical_hardware": "config/hardware.json",
+      "avr_architecture_and_scheduler_math": "config/avr.json",
+      "build_and_dependencies": "config/toolchain.json"
+    }
+  },
+  "serial": {
+    "baud": 115200,
+    "status_period_ms": 1000
+  },
+  "blinking_leds": {
+    "shared_interval": {
+      "base_ms": 125,
+      "scale_base": 2,
+      "count": 6,
+      "initial_index": 2,
+      "derived_values_ms": [
+        125,
+        250,
+        500,
+        1000,
+        2000,
+        4000
+      ]
+    }
+  },
+  "buttons": {
+    "scan_period_ms": 5,
+    "debounce_ms": 30,
+    "auto_repeat": false
+  },
+  "metrics": {
+    "sample_period_ms": 250
+  },
+  "displays": {
+    "service_period_ms": 20,
+    "oled_refresh_period_ms": 1000
+  },
+  "scheduler": {
+    "heartbeat_period_ms": 100,
+    "scheduling_policy": "fixed-rate",
+    "missed_release_policy": "skip missed releases; do not execute catch-up bursts"
+  },
+  "sram_policy": {
+    "target_free_bytes": 512,
+    "minimum_free_bytes": 400
+  }
+}
