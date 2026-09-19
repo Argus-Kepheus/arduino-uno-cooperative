@@ -21,27 +21,41 @@ Other files remain authoritative only for information outside these domains:
 - `docs/EN/` currently owns the canonical technical narrative;
 - `report/` is a historical/academic snapshot, not an operational source of truth.
 
-## Wave 1 transitional state
+## Generated artifacts after Wave 2
 
-Wave 1 is intentionally behavior-neutral.
-
-`project_config.h` and `libraries.txt` are still the files consumed by the
-current firmware/Wokwi workflow. They are **not generated yet** in this wave.
-
-The new JSON files therefore mirror and formalize the verified baseline. Do not
-assume that editing `config/` changes firmware behavior yet.
-
-Wave 2 will establish deterministic generation and repository validation:
+Wave 2 makes the configuration model executable:
 
 ```text
 config/hardware.json ─┐
-config/runtime.json ──┼──> project_config.h
-config/avr.json ──────┘
+config/runtime.json ──┼──> tools/generate_project_config.py
+config/avr.json ──────┘                    │
+                                           ▼
+                                  project_config.h
 
-config/toolchain.json ───> libraries.txt
+config/toolchain.json ───> tools/generate_libraries.py
+                                      │
+                                      ▼
+                                libraries.txt
 ```
 
-At that point, generated artifacts can stop being independently maintained.
+`project_config.h` is now a generated artifact and contains an explicit
+generated-file header. `libraries.txt` is also generated; its format cannot
+carry comments, so its generated status is enforced by
+`tools/validate_repository.py`.
+
+The Arduino firmware continues to consume the same `Config::...` interface;
+the Uno never parses the JSON files at runtime.
+
+To change configuration, edit the canonical JSON first, regenerate the affected
+artifact, and run:
+
+```text
+python tools/validate_repository.py
+```
+
+The validator also checks the current Wokwi circuit and AVR fast-path
+assumptions so a pin/configuration change cannot silently leave
+`diagram.json` or direct-port code inconsistent.
 
 ## Why AVR has its own configuration file
 
@@ -76,13 +90,14 @@ may pin them if reproducible CI requires it.
 
 ## Editing policy
 
-Until Wave 2 is complete:
+After Wave 2:
 
-1. treat the JSON files as the intended canonical model;
-2. do not remove the existing values from `project_config.h` or
-   `libraries.txt`;
-3. do not alter firmware behavior merely to consume the new files;
-4. keep `diagram.json` unchanged unless a real hardware change is intended.
+1. edit canonical values under `config/`;
+2. regenerate `project_config.h` and/or `libraries.txt` as appropriate;
+3. never maintain generated values independently in those artifacts;
+4. keep `diagram.json` as the authority for Wokwi geometry, but validate its
+   electrical semantics against `config/hardware.json`;
+5. run `python tools/validate_repository.py` before committing.
 
-After generation is introduced, edits should flow from `config/` to generated
-artifacts rather than the reverse.
+Documentation is still maintained separately in this wave; multilingual parity
+and documentation deduplication are handled by later waves.
