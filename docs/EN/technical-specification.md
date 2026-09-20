@@ -1,5 +1,10 @@
+<!-- doc-id: technical-specification -->
+<!-- language: EN -->
+<!-- content-revision: 1 -->
+
 # Technical Specification
 
+<!-- section: purpose -->
 ## 1. Purpose
 
 `arduino-uno-cooperative` demonstrates cooperative concurrency on an Arduino
@@ -7,6 +12,7 @@ Uno R3 while preserving concepts from `esp32-asyncio` without attempting to
 reproduce MicroPython `asyncio`. The constraints of the ATmega328P - 8 bit,
 16 MHz, and only 2 KiB of SRAM - are part of the experiment.
 
+<!-- section: baseline-principles -->
 ## 2. Baseline principles
 
 1. No RTOS, threads, or `TaskScheduler`.
@@ -20,6 +26,7 @@ reproduce MicroPython `asyncio`. The constraints of the ATmega328P - 8 bit,
 9. Instrument callback duration, lateness, overruns, scheduler passes, and SRAM.
 10. Skip missed releases rather than executing catch-up bursts.
 
+<!-- section: tasks -->
 ## 3. Tasks
 
 | Task | Nominal period | Responsibility |
@@ -33,30 +40,36 @@ reproduce MicroPython `asyncio`. The constraints of the ATmega328P - 8 bit,
 
 Total: **11 tasks**.
 
+<!-- section: blue-led-intervals -->
 ## 4. Blue-LED intervals
 
 All six tasks share the same configured period while remaining independent:
 125, 250, 500, 1000, 2000, and 4000 ms. Initial value: **500 ms**.
 
+<!-- section: inputs-debounce -->
 ## 5. Inputs and debounce
 
 All buttons use `INPUT_PULLUP`: pressed = LOW, released = HIGH. Nominal debounce
 is 30 ms with a 5 ms scan period. The main button reacts to press and release;
 the interval buttons react only to the press edge and do not auto-repeat.
 
+<!-- section: displays -->
 ## 6. Displays
 
+<!-- section: ili9341 -->
 ### ILI9341
 
 Primary display in landscape orientation. It uses software SPI so D12 remains a
 GPIO. It shows `APP BUSY`, free-SRAM history, metrics, button state, and a
 circular event console.
 
+<!-- section: ssd1306 -->
 ### SSD1306
 
 Compact diagnostic display on hardware I2C at `0x3C`. `SSD1306Ascii` avoids a
 1024-byte framebuffer. Refresh is rate-limited to about 1 Hz.
 
+<!-- section: metrics -->
 ## 7. Metrics
 
 - **APP BUSY:** fraction of the measurement window spent inside instrumented
@@ -68,6 +81,7 @@ Compact diagnostic display on hardware I2C at `0x3C`. `SSD1306Ascii` avoids a
 - **MAX LATE:** largest observed release-to-execution delay.
 - **OVR:** missed releases skipped by the controlled-degradation policy.
 
+<!-- section: sram -->
 ## 8. SRAM
 
 Desired margin: **>= 512 estimated free bytes**. Minimum accepted margin:
@@ -77,11 +91,13 @@ without redesign.
 Avoid `String`, `new`, `malloc`, dynamic containers, and large graphical buffers
 during normal operation.
 
+<!-- section: communication -->
 ## 9. Communication
 
 UART: 115200 baud, D0/RX and D1/TX reserved. Serial diagnostics should remain
 available even when a display is unavailable or limited.
 
+<!-- section: acceptance-criteria -->
 ## 10. Acceptance criteria
 
 The baseline must compile for Uno R3, run eleven cooperative tasks, preserve six
@@ -90,6 +106,7 @@ OLED, and serial simultaneously, expose the specified metrics, remain above the
 SRAM threshold, stay responsive at 125 ms, survive modular-clock rollover, and
 remain stable during an extended integrated run.
 
+<!-- section: future-work -->
 ## 11. Future work
 
 Open extensions include `TaskScheduler`, AceRoutine, hardware SPI with revised
