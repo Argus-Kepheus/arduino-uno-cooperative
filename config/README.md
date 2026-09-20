@@ -34,10 +34,9 @@ config/hardware.json ─┐
 config/runtime.json ──┼──> tools/generate_avr_contracts.py ──> avr_contracts.h
 config/avr.json ──────┘
 
-config/toolchain.json ───> tools/generate_libraries.py
-                                      │
-                                      ▼
-                                libraries.txt
+config/toolchain.json ───> tools/generate_libraries.py ──> libraries.txt
+
+config/*.json ────────────> tools/generate_docs.py ──> generated EN/PT regions
 ```
 
 `project_config.h` is now a generated artifact and contains an explicit
@@ -95,14 +94,14 @@ may pin them if reproducible CI requires it.
 After Wave 2:
 
 1. edit canonical values under `config/`;
-2. regenerate `project_config.h` and/or `libraries.txt` as appropriate;
-3. never maintain generated values independently in those artifacts;
+2. regenerate `project_config.h`, `avr_contracts.h`, `libraries.txt`
+   and/or generated documentation regions as appropriate;
+3. never maintain generated values independently in those artifacts/regions;
 4. keep `diagram.json` as the authority for Wokwi geometry, but validate its
    electrical semantics against `config/hardware.json`;
-5. run `python tools/validate_repository.py` before committing.
-
-Documentation is still maintained separately in this wave; multilingual parity
-and documentation deduplication are handled by later waves.
+5. preserve narrative documentation manually while generated numeric/technical
+   regions remain owned by `config/`;
+6. run `python tools/validate_repository.py` before committing.
 
 
 ## AVR contract layer after Wave 3
