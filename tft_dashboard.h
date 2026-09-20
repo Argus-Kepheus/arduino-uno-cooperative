@@ -85,9 +85,8 @@ class TftDashboard {
   void begin() {
 
     /*
-     * D12 is a completely independent GPIO in this revision.
-     *
-     * Software SPI touches only CS, DC, MOSI/D11 and SCK/D13.
+     * The software-SPI/display-activity pin relationship is protected by the
+     * generated AVR contracts.
      */
 
     DisplayActivity::begin();
@@ -100,7 +99,7 @@ class TftDashboard {
 
 
     tft_.setRotation(
-        1);
+        Config::TFT_ROTATION);
 
 
     tft_.fillScreen(
