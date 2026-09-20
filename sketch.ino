@@ -25,8 +25,8 @@ OledStatus oledStatus;
 TftDashboard tftDashboard;
 
 
-// The first six scheduler slots are intentionally reserved for the six
-// independent blue-LED tasks. This avoids a separate six-byte ID table.
+// Blue-task IDs are generated from the canonical scheduler contract.
+// The arithmetic ID range avoids a separate six-byte task-ID table.
 static const uint8_t BLUE_TASK_FIRST_ID =
     AvrContracts::BLUE_TASK_FIRST_ID;
 static const uint8_t BLUE_TASK_COUNT =
@@ -479,10 +479,9 @@ void configureOutputs() {
 
 
   /*
-   * D12 is configured later by DisplayActivity::begin().
-   *
-   * This revision uses software SPI for the TFT, so D12 is never captured
-   * by the ATmega328P hardware-SPI peripheral.
+   * The display-activity output is configured later by
+   * DisplayActivity::begin(). Its compatibility with the selected TFT
+   * software-SPI mapping is enforced by the generated AVR contracts.
    */
 }
 
@@ -499,8 +498,8 @@ void registerTasks() {
 
   /*
    * IMPORTANT:
-   * These must remain the first six scheduler registrations. Their numeric
-   * IDs are intentionally used by setBlinkIntervalIndex().
+   * Registration order must match config/avr.json. The generated blue-task
+   * ID contract is intentionally used by setBlinkIntervalIndex().
    */
 
   scheduler.add(
