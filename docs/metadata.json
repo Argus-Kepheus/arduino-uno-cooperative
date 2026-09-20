@@ -25,7 +25,7 @@
       ]
     },
     "architecture": {
-      "content_revision": 1,
+      "content_revision": 2,
       "paths": {
         "EN": "docs/EN/architecture.md",
         "PT": "docs/PT/architecture.md"
