@@ -13,12 +13,6 @@ namespace AvrFastIo {
 inline void toggleBlueLed(
     uint8_t index) {
 
-  const uint8_t pin =
-      (uint8_t)(
-          Config::BLUE_LED_FIRST_PIN +
-          index);
-
-
 #if defined(__AVR_ATmega328P__)
 
   PORTD ^=
@@ -27,6 +21,12 @@ inline void toggleBlueLed(
           (AvrContracts::BLUE_LED_PORT_FIRST_BIT + index));
 
 #else
+
+  const uint8_t pin =
+      (uint8_t)(
+          Config::BLUE_LED_FIRST_PIN +
+          index);
+
 
   digitalWrite(
       pin,
