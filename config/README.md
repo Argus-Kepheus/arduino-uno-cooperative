@@ -27,10 +27,12 @@ Wave 2 makes the configuration model executable:
 
 ```text
 config/hardware.json ─┐
-config/runtime.json ──┼──> tools/generate_project_config.py
-config/avr.json ──────┘                    │
-                                           ▼
-                                  project_config.h
+config/runtime.json ──┼──> tools/generate_project_config.py ──> project_config.h
+config/avr.json ──────┘
+
+config/hardware.json ─┐
+config/runtime.json ──┼──> tools/generate_avr_contracts.py ──> avr_contracts.h
+config/avr.json ──────┘
 
 config/toolchain.json ───> tools/generate_libraries.py
                                       │
@@ -101,3 +103,37 @@ After Wave 2:
 
 Documentation is still maintained separately in this wave; multilingual parity
 and documentation deduplication are handled by later waves.
+
+
+## AVR contract layer after Wave 3
+
+AVR-specific assumptions are now enforced through two explicit headers:
+
+```text
+config/hardware.json ─┐
+config/runtime.json ──┼──> tools/generate_avr_contracts.py
+config/avr.json ──────┘                  │
+                                         ▼
+                                avr_contracts.h
+                                         │
+                     ┌───────────────────┴───────────────────┐
+                     ▼                                       ▼
+               avr_fast_io.h                    cooperative_scheduler.h
+                     │                                       │
+                     └───────────────────┬───────────────────┘
+                                         ▼
+                                     sketch.ino
+```
+
+`avr_contracts.h` is generated and contains compile-time assertions for the
+ATmega328P target, 16 MHz clock, direct-port pin assumptions, software-SPI
+D11/D12/D13 relationship and scheduler half-range.
+
+`avr_fast_io.h` is hand-written implementation code. It is the only
+application header allowed to know the direct AVR registers used by the fast
+paths (`PORTD`, `PINC`, `PORTC`). It also provides portable
+`digitalRead()/digitalWrite()` fallbacks for non-ATmega328P builds.
+
+Changing a pin involved in a fast path therefore requires a coherent canonical
+configuration update; otherwise generation, static validation or compilation
+will reject the change.
