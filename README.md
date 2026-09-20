@@ -37,6 +37,7 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 | `diagram.json` | Circuito e geometria/layout do Wokwi; semântica elétrica validada contra `config/hardware.json` |
 | `libraries.txt` | Lista gerada de dependências do Wokwi |
 | `tools/` | Geração determinística, validação estática e build Arduino reproduzível |
+| `.github/workflows/` | CI para validação e compilação real do firmware integrado |
 | `docs/EN/` e `docs/PT/` | Documentação técnica bilíngue sob contrato semântico em `docs/metadata.json` |
 | `diagnostics/` | Diagnósticos manuais isolados para Wokwi/hardware, governados por `diagnostics/metadata.json` |
 | `tests/` | Reservado para futuros testes automatizados host-side |
@@ -53,6 +54,14 @@ python tools/build_firmware.py
 
 O comando cria apenas staging/artefatos sob `build/`; `sketch.ino` permanece
 inalterado para o workflow do Wokwi.
+
+## Integração contínua
+
+O workflow `.github/workflows/repository-validation.yml` executa em `push`,
+`pull_request` e `workflow_dispatch`. Ele verifica todos os artefatos
+gerados, executa o validador estático e compila de fato o firmware integrado
+para `arduino:avr:uno` usando o toolchain pinado de
+`config/toolchain.json`.
 
 ## Validação
 
