@@ -38,7 +38,7 @@ class OledStatus {
 
 
     /*
-     * Probe address 0x3C before initializing the controller.
+     * Probe the configured OLED address before initializing the controller.
      */
 
     Wire.beginTransmission(
