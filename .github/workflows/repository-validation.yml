@@ -1,0 +1,60 @@
+name: Repository validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate and compile Arduino Uno
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+        with:
+          version: "1.5.1"
+
+      - name: Show tool versions
+        run: |
+          python --version
+          arduino-cli version
+
+      - name: Check generated project configuration
+        run: python tools/generate_project_config.py --check
+
+      - name: Check generated AVR contracts
+        run: python tools/generate_avr_contracts.py --check
+
+      - name: Check generated library list
+        run: python tools/generate_libraries.py --check
+
+      - name: Check generated documentation
+        run: python tools/generate_docs.py --check
+
+      - name: Validate repository consistency
+        run: python tools/validate_repository.py
+
+      - name: Compile integrated Arduino Uno firmware
+        env:
+          ARDUINO_UPDATER_ENABLE_NOTIFICATION: "false"
+        run: python tools/build_firmware.py
