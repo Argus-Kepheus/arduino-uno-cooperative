@@ -29,6 +29,7 @@ SCHEDULER_PATH = ROOT / "cooperative_scheduler.h"
 BUTTON_PATH = ROOT / "button_debounce.h"
 TFT_PATH = ROOT / "tft_dashboard.h"
 WOKWI_PROJECT_PATH = ROOT / "wokwi-project.txt"
+DOCS_METADATA_PATH = ROOT / "docs" / "metadata.json"
 
 sys.path.insert(0, str(ROOT / "tools"))
 from generate_avr_contracts import render_avr_contracts  # noqa: E402
@@ -105,6 +106,7 @@ def check_required_files() -> None:
         SCHEDULER_PATH,
         BUTTON_PATH,
         TFT_PATH,
+        DOCS_METADATA_PATH,
         ROOT / "tools" / "generate_project_config.py",
         ROOT / "tools" / "generate_avr_contracts.py",
         ROOT / "tools" / "generate_libraries.py",
@@ -493,6 +495,102 @@ def check_firmware_contracts(runtime: dict, avr: dict, hardware: dict) -> None:
         )
 
 
+
+HEADER_PATTERNS = {
+    "doc_id": re.compile(r"<!--\\s*doc-id:\\s*([^>]+?)\\s*-->"),
+    "language": re.compile(r"<!--\\s*language:\\s*([^>]+?)\\s*-->"),
+    "revision": re.compile(r"<!--\\s*content-revision:\\s*([^>]+?)\\s*-->"),
+}
+SECTION_PATTERN = re.compile(r"<!--\\s*section:\\s*([^>]+?)\\s*-->")
+
+
+def check_documentation_parity(metadata: dict) -> None:
+    if metadata.get("schema_version") != "1.0":
+        fail("docs/metadata.json: expected schema_version 1.0")
+
+    languages = metadata.get("languages", {})
+    canonical = metadata.get("canonical_language")
+
+    if canonical not in languages:
+        fail("docs/metadata.json canonical_language is not registered")
+    elif languages.get(canonical, {}).get("role") != "canonical":
+        fail("Canonical documentation language must declare role=canonical")
+
+    if set(languages) != {"EN", "PT"}:
+        fail("Wave 4 documentation contract must contain exactly EN and PT")
+
+    if languages.get("PT", {}).get("role") != "translation":
+        fail("PT documentation language must declare role=translation")
+
+    documents = metadata.get("documents", {})
+    if not documents:
+        fail("docs/metadata.json contains no document contracts")
+        return
+
+    seen_paths: set[str] = set()
+
+    for doc_id, spec in documents.items():
+        revision = spec.get("content_revision")
+        required = spec.get("required_sections", [])
+        paths = spec.get("paths", {})
+
+        if not isinstance(revision, int) or revision < 1:
+            fail(f"{doc_id}: content_revision must be a positive integer")
+        if not required or len(required) != len(set(required)):
+            fail(f"{doc_id}: required_sections must be non-empty and unique")
+
+        if set(paths) != set(languages):
+            fail(f"{doc_id}: paths must cover every registered language")
+            continue
+
+        for language in languages:
+            relative = paths.get(language)
+            if not isinstance(relative, str):
+                fail(f"{doc_id}/{language}: invalid document path")
+                continue
+            if relative in seen_paths:
+                fail(f"Duplicate documentation path in metadata: {relative}")
+            seen_paths.add(relative)
+
+            path = ROOT / relative
+            if not path.exists():
+                fail(f"Missing documentation file: {relative}")
+                continue
+
+            text = path.read_text(encoding="utf-8")
+
+            headers: dict[str, str | None] = {}
+            for key, pattern in HEADER_PATTERNS.items():
+                match = pattern.search(text)
+                headers[key] = match.group(1).strip() if match else None
+
+            if headers["doc_id"] != doc_id:
+                fail(
+                    f"{relative}: doc-id {headers['doc_id']!r} "
+                    f"does not match {doc_id!r}"
+                )
+            if headers["language"] != language:
+                fail(
+                    f"{relative}: language {headers['language']!r} "
+                    f"does not match {language!r}"
+                )
+            if headers["revision"] != str(revision):
+                fail(
+                    f"{relative}: content-revision {headers['revision']!r} "
+                    f"does not match metadata revision {revision}"
+                )
+
+            sections = [
+                match.group(1).strip()
+                for match in SECTION_PATTERN.finditer(text)
+            ]
+            if sections != required:
+                fail(
+                    f"{relative}: semantic section sequence differs from "
+                    f"metadata; expected {required}, found {sections}"
+                )
+
+
 def check_toolchain(toolchain: dict) -> None:
     if WOKWI_PROJECT_PATH.exists():
         text = WOKWI_PROJECT_PATH.read_text(encoding="utf-8")
@@ -508,6 +606,7 @@ def main() -> int:
     runtime = load_json(RUNTIME_PATH)
     avr = load_json(AVR_PATH)
     toolchain = load_json(TOOLCHAIN_PATH)
+    docs_metadata = load_json(DOCS_METADATA_PATH)
 
     for config, name in (
         (hardware, "hardware.json"),
@@ -524,6 +623,9 @@ def main() -> int:
         check_diagram(hardware)
         check_firmware_contracts(runtime, avr, hardware)
         check_toolchain(toolchain)
+
+    if docs_metadata:
+        check_documentation_parity(docs_metadata)
 
     print("arduino-uno-cooperative repository validation")
     print(f"Errors: {len(ERRORS)}")
