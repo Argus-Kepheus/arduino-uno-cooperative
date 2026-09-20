@@ -33,6 +33,7 @@ DOCS_METADATA_PATH = ROOT / "docs" / "metadata.json"
 
 sys.path.insert(0, str(ROOT / "tools"))
 from generate_avr_contracts import render_avr_contracts  # noqa: E402
+from generate_docs import render_file, target_files  # noqa: E402
 from generate_libraries import render_libraries  # noqa: E402
 from generate_project_config import render_project_config  # noqa: E402
 
@@ -109,6 +110,7 @@ def check_required_files() -> None:
         DOCS_METADATA_PATH,
         ROOT / "tools" / "generate_project_config.py",
         ROOT / "tools" / "generate_avr_contracts.py",
+        ROOT / "tools" / "generate_docs.py",
         ROOT / "tools" / "generate_libraries.py",
     ):
         if not path.exists():
@@ -504,6 +506,36 @@ HEADER_PATTERNS = {
 SECTION_PATTERN = re.compile(r"<!--\\s*section:\\s*([^>]+?)\\s*-->")
 
 
+
+def check_generated_documentation(
+    hardware: dict, runtime: dict, avr: dict, toolchain: dict
+) -> None:
+    for relative, language, names in target_files():
+        path = ROOT / relative
+        if not path.exists():
+            fail(f"Missing generated-document target: {relative}")
+            continue
+        try:
+            actual = path.read_text(encoding="utf-8")
+            expected = render_file(
+                path,
+                language,
+                names,
+                hardware,
+                runtime,
+                avr,
+                toolchain,
+            )
+        except Exception as exc:
+            fail(f"Cannot render generated documentation {relative}: {exc}")
+            continue
+        if actual != expected:
+            fail(
+                f"{relative} contains stale generated regions; run "
+                "python tools/generate_docs.py --write"
+            )
+
+
 def check_documentation_parity(metadata: dict) -> None:
     if metadata.get("schema_version") != "1.0":
         fail("docs/metadata.json: expected schema_version 1.0")
@@ -623,6 +655,7 @@ def main() -> int:
         check_diagram(hardware)
         check_firmware_contracts(runtime, avr, hardware)
         check_toolchain(toolchain)
+        check_generated_documentation(hardware, runtime, avr, toolchain)
 
     if docs_metadata:
         check_documentation_parity(docs_metadata)
