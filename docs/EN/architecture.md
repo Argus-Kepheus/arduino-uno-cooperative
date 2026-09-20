@@ -1,5 +1,10 @@
+<!-- doc-id: architecture -->
+<!-- language: EN -->
+<!-- content-revision: 1 -->
+
 # Firmware Architecture
 
+<!-- section: overview -->
 ## Overview
 
 The firmware has one physical execution flow. `loop()` continuously calls
@@ -24,6 +29,7 @@ Tasks have no private stacks and normal tasks do not preempt one another.
 Interrupts used internally by the Arduino core still support facilities such as
 timekeeping and UART, but they are not the application architecture.
 
+<!-- section: layers -->
 ## Layers
 
 - **Application (`sketch.ino`)**: initialization, composition, functional logic.
@@ -34,12 +40,14 @@ timekeeping and UART, but they are not the application architecture.
   MAX LATE, and OVR.
 - **Presentation**: `display_activity.h`, `oled_status.h`, `tft_dashboard.h`.
 
+<!-- section: blue-leds -->
 ## Six independent LEDs
 
 The six callbacks `blinkLed1` ... `blinkLed6` intentionally remain separate.
 A single task could update all LEDs more compactly, but would remove the
 observation of six independent timing entities from the experiment.
 
+<!-- section: display-pipeline -->
 ## Display pipeline
 
 `serviceDisplays` never redraws the full interface in one call. When a new
@@ -58,16 +66,19 @@ presentation across stages:
 The sample is marked displayed only after all stages complete, avoiding mixed
 samples on the same visual update.
 
+<!-- section: event-console -->
 ## Event console
 
 Events use a fixed-size circular queue. If full, the oldest event is dropped.
 No `String`, `malloc`, or dynamic lists are used.
 
+<!-- section: fault-isolation -->
 ## Fault isolation
 
 A missing OLED must not prevent LEDs, buttons, scheduler, TFT, or serial from
 operating. Serial remains the primary diagnostic path.
 
+<!-- section: evolution-policy -->
 ## Evolution policy
 
 The baseline favors clarity, observability, and low SRAM use. Aggressive
