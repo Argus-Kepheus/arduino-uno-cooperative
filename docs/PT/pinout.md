@@ -1,9 +1,10 @@
 <!-- doc-id: pinout -->
 <!-- language: PT -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # Pinagem Oficial
 
+<!-- BEGIN GENERATED: pin-map -->
 | Pino | Função |
 |---|---|
 | D0 / RX | recepção serial |
@@ -17,33 +18,26 @@
 | D8 | LED verde |
 | D9 | TFT D/C |
 | D10 | TFT CS |
-| D11 | TFT MOSI - SPI por software |
-| D12 | LED laranja - display idle/activity |
-| D13 | TFT SCK - SPI por software + LED `L` integrado |
+| D11 | TFT MOSI — SPI por software |
+| D12 | LED laranja de atividade dos displays |
+| D13 | TFT SCK — SPI por software + LED L integrado |
 | A0 | botão principal |
 | A1 | diminuir intervalo |
 | A2 | aumentar intervalo |
-| A3 | LED amarelo - scheduler heartbeat |
+| A3 | LED amarelo de heartbeat do escalonador |
 | A4 / SDA | OLED SDA |
 | A5 / SCL | OLED SCL |
+<!-- END GENERATED: pin-map -->
 
 <!-- section: tft -->
 ## TFT
 
-```text
-D9  -> D/C
-D10 -> CS
-D11 -> MOSI
-D13 -> SCK
-5V  -> VCC
-GND -> GND
-```
-
-A TFT é somente de escrita. O projeto-base usa SPI por software para que D12
-permaneça GPIO normal.
+Os pinos de sinal canônicos são gerados no mapa acima. A TFT é somente de
+escrita e usa SPI por software, preservando o pino de MISO de hardware para o
+indicador de atividade dos displays.
 
 <!-- section: display-activity-led -->
-## LED laranja em D12
+## LED laranja de atividade dos displays
 
 Semântica lógica:
 
@@ -52,33 +46,31 @@ HIGH -> subsistema de displays ocioso
 LOW  -> operação instrumentada de display em andamento
 ```
 
-O indicador não pretende mostrar cada transição elétrica dos barramentos.
+Seu pino atual é gerado no mapa acima. O indicador não pretende reproduzir cada
+transição elétrica dos barramentos.
 
 <!-- section: builtin-led -->
-## LED L em D13
+## LED L integrado
 
-Como D13 também é o clock da TFT, o LED `L` integrado pode apresentar atividade
-durante atualizações da ILI9341. Esse efeito é esperado.
+O pino usado como SCK da TFT também aciona o LED `L` da placa; por isso,
+atividade do clock do display pode aparecer nele. Esse efeito é esperado e o
+pino atual é gerado acima.
 
 <!-- section: oled -->
 ## OLED
 
-```text
-A4 -> SDA
-A5 -> SCL
-5V -> VCC
-GND -> GND
-endereço -> 0x3C
-```
-
-A4/A5 utilizam o periférico I2C/TWI de hardware.
+Os pinos SDA/SCL canônicos são gerados acima. Endereço, frequência do bus e
+alimentação pertencem a `config/hardware.json` e são resumidos em
+[`displays.md`](displays.md).
 
 <!-- section: buttons -->
 ## Botões
 
-A0, A1 e A2 utilizam `INPUT_PULLUP` e são conectados ao GND quando pressionados.
+Os três botões da aplicação usam `INPUT_PULLUP` e conectam-se ao GND quando
+pressionados. Seus pinos e funções atuais são gerados acima.
 
 <!-- section: uart -->
 ## UART
 
-D0 e D1 permanecem exclusivamente reservados para comunicação serial.
+Os pinos mostrados acima permanecem reservados exclusivamente para comunicação
+serial.
