@@ -1,6 +1,6 @@
 <!-- doc-id: technical-specification -->
 <!-- language: EN -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # Technical Specification
 
@@ -29,29 +29,61 @@ reproduce MicroPython `asyncio`. The constraints of the ATmega328P - 8 bit,
 <!-- section: tasks -->
 ## 3. Tasks
 
+<!-- BEGIN GENERATED: task-periods -->
 | Task | Nominal period | Responsibility |
 |---|---:|---|
-| `blinkLed1` ... `blinkLed6` | 125-4000 ms | six independent LEDs |
-| `scanButtons` | 5 ms | read/debounce three buttons |
-| `sampleMetrics` | 250 ms | consolidate metrics |
-| `serviceDisplays` | 20 ms | incremental TFT/OLED pipeline |
-| `printStatus` | 1000 ms | serial status |
-| `schedulerHeartbeat` | 100 ms | heartbeat on A3 |
+| blinkLed1 ... blinkLed6 | 125–4000 ms | six independent LEDs |
+| scanButtons | 5 ms | read/debounce three buttons |
+| sampleMetrics | 250 ms | consolidate metrics |
+| serviceDisplays | 20 ms | incremental TFT/OLED pipeline |
+| printStatus | 1000 ms | serial status |
+| schedulerHeartbeat | 100 ms | scheduler heartbeat |
 
 Total: **11 tasks**.
+<!-- END GENERATED: task-periods -->
 
 <!-- section: blue-led-intervals -->
 ## 4. Blue-LED intervals
 
-All six tasks share the same configured period while remaining independent:
-125, 250, 500, 1000, 2000, and 4000 ms. Initial value: **500 ms**.
+All six tasks share the same configured period while remaining independent.
+
+<!-- BEGIN GENERATED: blink-intervals -->
+| Index | Interval |
+|---:|---:|
+| 0 | 125 ms |
+| 1 | 250 ms |
+| 2 | 500 ms |
+| 3 | 1000 ms |
+| 4 | 2000 ms |
+| 5 | 4000 ms |
+
+Initial value: **500 ms**.
+<!-- END GENERATED: blink-intervals -->
 
 <!-- section: inputs-debounce -->
 ## 5. Inputs and debounce
 
-All buttons use `INPUT_PULLUP`: pressed = LOW, released = HIGH. Nominal debounce
-is 30 ms with a 5 ms scan period. The main button reacts to press and release;
-the interval buttons react only to the press edge and do not auto-repeat.
+The current operational values are generated from `config/runtime.json`,
+`config/hardware.json` and `config/avr.json`:
+
+<!-- BEGIN GENERATED: runtime-summary -->
+| Runtime property | Canonical value |
+|---|---|
+| Input mode | INPUT_PULLUP |
+| Pressed / released | LOW / HIGH |
+| Button scan | 5 ms |
+| Debounce | 30 ms |
+| Auto-repeat | disabled |
+| Physical SRAM | 2048 bytes |
+| Target free SRAM | >= 512 bytes |
+| Minimum free SRAM | >= 400 bytes |
+| Serial baud | 115200 |
+| Serial status period | 1000 ms |
+| UART | D0/RX, D1/TX |
+<!-- END GENERATED: runtime-summary -->
+
+The main button reacts to press and release edges. The interval buttons react
+only to the press edge; the auto-repeat policy above remains authoritative.
 
 <!-- section: displays -->
 ## 6. Displays
@@ -59,15 +91,16 @@ the interval buttons react only to the press edge and do not auto-repeat.
 <!-- section: ili9341 -->
 ### ILI9341
 
-Primary display in landscape orientation. It uses software SPI so D12 remains a
-GPIO. It shows `APP BUSY`, free-SRAM history, metrics, button state, and a
-circular event console.
+Primary display in landscape orientation. Its canonical wiring and geometry
+are generated in [`displays.md`](displays.md). It shows `APP BUSY`,
+free-SRAM history, metrics, button state, and a circular event console.
 
 <!-- section: ssd1306 -->
 ### SSD1306
 
-Compact diagnostic display on hardware I2C at `0x3C`. `SSD1306Ascii` avoids a
-1024-byte framebuffer. Refresh is rate-limited to about 1 Hz.
+Compact diagnostic display using the canonical hardware-I2C configuration
+generated in [`displays.md`](displays.md). `SSD1306Ascii` avoids a
+1024-byte framebuffer.
 
 <!-- section: metrics -->
 ## 7. Metrics
@@ -84,9 +117,9 @@ Compact diagnostic display on hardware I2C at `0x3C`. `SSD1306Ascii` avoids a
 <!-- section: sram -->
 ## 8. SRAM
 
-Desired margin: **>= 512 estimated free bytes**. Minimum accepted margin:
-**400 bytes**. Below 400 bytes, the integrated baseline should not be accepted
-without redesign.
+The physical SRAM size and operational free-SRAM thresholds are generated in
+the runtime summary above. Falling below the configured minimum means the
+integrated baseline should not be accepted without redesign.
 
 Avoid `String`, `new`, `malloc`, dynamic containers, and large graphical buffers
 during normal operation.
@@ -94,8 +127,9 @@ during normal operation.
 <!-- section: communication -->
 ## 9. Communication
 
-UART: 115200 baud, D0/RX and D1/TX reserved. Serial diagnostics should remain
-available even when a display is unavailable or limited.
+UART rate and reserved pins are generated in the runtime summary above. Serial
+diagnostics should remain available even when a display is unavailable or
+limited.
 
 <!-- section: acceptance-criteria -->
 ## 10. Acceptance criteria
