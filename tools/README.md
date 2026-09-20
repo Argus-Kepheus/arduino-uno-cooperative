@@ -92,6 +92,47 @@ The current generated regions cover baseline technical inventory, pin mapping,
 display configuration, scheduler contracts/registration order, task periods,
 blink intervals and runtime/SRAM/UART values.
 
+## Reproducible Arduino build
+
+Wave 7 pins the integrated build to:
+
+```text
+Arduino CLI      1.5.1
+Arduino AVR Core 1.8.8
+FQBN             arduino:avr:uno
+warnings         all
+```
+
+The exact library versions remain in `config/toolchain.json`.
+
+The repository root intentionally keeps `sketch.ino` for Wokwi. Arduino's
+sketch specification requires the primary `.ino` file to match the sketch
+folder name, so `build_firmware.py` creates a temporary valid sketch under
+`build/staging/`, copies the integrated root headers, renames the staged
+primary file, and writes a pinned `sketch.yaml` build profile.
+
+Inspect the generated profile without compiling:
+
+```text
+python tools/build_firmware.py --print-profile
+```
+
+Prepare the staging sketch only:
+
+```text
+python tools/build_firmware.py --prepare-only
+```
+
+Compile with the pinned Arduino CLI installed:
+
+```text
+python tools/build_firmware.py
+```
+
+The profile-based build excludes globally installed cores/libraries and uses
+the exact platform/library versions declared in `config/toolchain.json`.
+Build staging and binaries remain under ignored `build/`.
+
 ## Validate repository
 
 ```text
@@ -111,8 +152,9 @@ The validator checks:
   connectivity;
 - OLED/TFT buses, supply and address;
 - TFT software-SPI relationship with D12;
-- the current button debounce default and TFT rotation;
+- neutral button-class defaults and generated runtime debounce/TFT rotation consumption;
 - Wokwi project URL consistency;
+- exact Arduino CLI/core pinning and deterministic reproducible build-profile rendering;
 - multilingual documentation parity from `docs/metadata.json` (document IDs,
   language markers, shared revisions and semantic-section sequence);
 - byte-exact generated documentation regions from canonical `config/` data;
