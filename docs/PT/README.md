@@ -1,6 +1,6 @@
 <!-- doc-id: project-overview -->
 <!-- language: PT -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # arduino-uno-cooperative
 
@@ -17,18 +17,27 @@ A simulação inicial é destinada ao **Wokwi no navegador**.
 <!-- section: baseline-architecture -->
 ## Arquitetura-base
 
-- Arduino Uno R3, ATmega328P, 16 MHz;
+<!-- BEGIN GENERATED: baseline-summary -->
+| Propriedade | Valor canônico |
+|---|---|
+| Placa | Arduino Uno R3 |
+| MCU / clock | ATmega328P / 16 MHz |
+| Tarefas registradas | 11 |
+| LEDs azuis | D2–D7 (6) |
+| Botões | A0 / A1 / A2 |
+| LED verde | D8 |
+| LED de atividade dos displays | D12 |
+| Heartbeat do escalonador | A3 |
+| TFT | software SPI: D9/D10/D11/D13 |
+| OLED | hardware I2C: A4/SDA, A5/SCL |
+| UART | D0/RX, D1/TX |
+| Bibliotecas | Adafruit GFX Library 1.12.6, Adafruit ILI9341 1.6.3, Adafruit BusIO 1.17.4, SSD1306Ascii 1.3.5 |
+<!-- END GENERATED: baseline-summary -->
+
+A tabela gerada mantém os fatos atuais de placa, pinagem, buses, quantidade de tarefas e versões de bibliotecas. As políticas arquiteturais permanecem manuais:
+
 - C++ / framework Arduino;
 - escalonador cooperativo nativo e estático;
-- 11 tarefas registradas;
-- seis LEDs azuis em D2-D7, com uma tarefa por LED;
-- botão principal em A0 e botões de intervalo em A1/A2;
-- LED verde em D8;
-- LED laranja de atividade dos displays em D12;
-- LED amarelo de heartbeat do escalonador em A3;
-- TFT ILI9341 em SPI por software: D9/D10/D11/D13;
-- OLED SSD1306 no I2C de hardware: A4/SDA e A5/SCL;
-- UART preservada em D0/RX e D1/TX;
 - nenhum `delay()` durante a operação normal;
 - nenhuma alocação dinâmica deliberada durante a operação normal.
 
