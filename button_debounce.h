@@ -22,7 +22,7 @@ class DebouncedButton {
       :
         pin_(0),
 
-        debounceMs_(30),
+        debounceMs_(0),
 
         stablePressed_(false),
 
