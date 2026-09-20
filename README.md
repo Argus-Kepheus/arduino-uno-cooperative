@@ -38,7 +38,8 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 | `libraries.txt` | Lista gerada de dependências do Wokwi |
 | `tools/` | Geração determinística e validação estática do repositório |
 | `docs/EN/` e `docs/PT/` | Documentação técnica bilíngue sob contrato semântico em `docs/metadata.json` |
-| `tests/` | Sketches diagnósticos isolados para Wokwi web |
+| `diagnostics/` | Diagnósticos manuais isolados para Wokwi/hardware, governados por `diagnostics/metadata.json` |
+| `tests/` | Reservado para futuros testes automatizados host-side |
 | `report/` | Relatório técnico em LaTeX e PDF |
 
 ## Validação
@@ -53,10 +54,11 @@ python tools/generate_docs.py --check
 python tools/validate_repository.py
 ```
 
-A pasta `tests/` contém sketches independentes que isolam partes do hardware
-(LEDs, botões, displays, escalonador). Eles não substituem a validação
-integrada — use `docs/PT/validation-checklist.md` (ou
-`docs/EN/validation-checklist.md`) para o roteiro completo de aceitação.
+A pasta `diagnostics/` contém sketches independentes que isolam partes do
+hardware (LEDs, botões, displays, escalonador). Eles são diagnósticos manuais e
+não substituem a validação integrada. O namespace `tests/` fica reservado para
+futura automação host-side. Para aceitação completa, use
+`docs/PT/validation-checklist.md` (ou `docs/EN/validation-checklist.md`).
 
 ## Limitações
 
