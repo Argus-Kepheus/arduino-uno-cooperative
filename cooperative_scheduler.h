@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#include "avr_contracts.h"
+
 
 class CooperativeScheduler {
 
@@ -19,9 +21,9 @@ class CooperativeScheduler {
   };
 
 
-  // Exactly eleven tasks exist in the baseline project.
+  // Capacity is generated from the canonical AVR scheduler contract.
   static const uint8_t MAX_TASKS =
-      11;
+      AvrContracts::SCHEDULER_MAX_TASKS;
 
 
   static const uint8_t INVALID_TASK =
@@ -32,13 +34,16 @@ class CooperativeScheduler {
    * Only the lower 16 bits of millis() are needed.
    *
    * Signed modular differences are unambiguous while every scheduled
-   * interval is below 32768 ms and the scheduler is not prevented from
-   * executing for 32768 ms or more.
+   * interval remains below AvrContracts::SCHEDULER_HALF_RANGE_MS and the
+   * scheduler is not prevented from executing for that long.
    *
-   * The longest period in this project is 4000 ms.
+   * The maximum currently configured period is generated in avr_contracts.h.
    */
 
   typedef uint16_t TickMs;
+
+  static_assert(sizeof(TickMs) == 2,
+                "Scheduler TickMs must remain 16-bit");
 
 
   CooperativeScheduler()
@@ -72,9 +77,9 @@ class CooperativeScheduler {
 
         periodMs == 0 ||
 
-        periodMs >= 32768U ||
+        periodMs >= AvrContracts::SCHEDULER_HALF_RANGE_MS ||
 
-        firstDelayMs >= 32768U ||
+        firstDelayMs >= AvrContracts::SCHEDULER_HALF_RANGE_MS ||
 
         taskCount_ >= MAX_TASKS) {
 
@@ -271,7 +276,7 @@ class CooperativeScheduler {
 
         newPeriodMs == 0 ||
 
-        newPeriodMs >= 32768U) {
+        newPeriodMs >= AvrContracts::SCHEDULER_HALF_RANGE_MS) {
 
 
       return;
