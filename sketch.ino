@@ -609,7 +609,8 @@ void setup() {
   // Main TFT ------------------------------------------------------------------
 
   /*
-   * tftDashboard.begin() also initializes the orange D12 activity LED.
+   * tftDashboard.begin() also initializes the configured display-activity
+   * indicator.
    */
 
   tftDashboard.begin();
