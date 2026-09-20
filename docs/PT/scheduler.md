@@ -1,6 +1,6 @@
 <!-- doc-id: scheduler -->
 <!-- language: PT -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # Escalonador Cooperativo
 
@@ -22,17 +22,25 @@ struct Task {
 };
 ```
 
-A capacidade-base é exatamente 11 tarefas.
+<!-- BEGIN GENERATED: scheduler-summary -->
+| Contrato | Valor canônico |
+|---|---|
+| Capacidade | 11 |
+| Tick | uint16_t / 16 bit |
+| Faixa modular | 65536 ms |
+| Meia-faixa assinada | 32768 ms |
+| Maior período configurado | 4000 ms |
+| Política de escalonamento | fixed-rate |
+| Política de liberações perdidas | skip missed releases; do not execute catch-up bursts |
+<!-- END GENERATED: scheduler-summary -->
 
 <!-- section: modular-clock -->
 ## Relógio modular de 16 bits
 
-O escalonador utiliza os 16 bits inferiores de `millis()`. As comparações usam
-diferença modular assinada. Essa técnica permite atravessar `65535 -> 0` sem
-parar o sistema, desde que os intervalos permaneçam menores que 32768 ms e o
-escalonador não fique impedido de executar por uma janela tão longa.
-
-O maior período atual é 4000 ms.
+O escalonador usa os bits inferiores de `millis()` representados pelo
+contrato de tick gerado. As comparações usam diferença modular assinada, o que
+permite atravessar o rollover sem interromper o sistema enquanto a regra de
+meia-faixa resumida acima for respeitada.
 
 <!-- section: fixed-rate -->
 ## Taxa fixa
@@ -74,8 +82,24 @@ O escalonador registra:
 <!-- section: registration-order -->
 ## Ordem de registro
 
-Os IDs 0 a 5 pertencem obrigatoriamente a `blinkLed1` ... `blinkLed6`. Essa
-propriedade elimina a necessidade de uma tabela extra com IDs das seis tarefas.
+<!-- BEGIN GENERATED: registration-order -->
+| ID da tarefa | Callback |
+|---:|---|
+| 0 | blinkLed1 |
+| 1 | blinkLed2 |
+| 2 | blinkLed3 |
+| 3 | blinkLed4 |
+| 4 | blinkLed5 |
+| 5 | blinkLed6 |
+| 6 | scanButtons |
+| 7 | sampleMetrics |
+| 8 | serviceDisplays |
+| 9 | printStatus |
+| 10 | schedulerHeartbeat |
+<!-- END GENERATED: registration-order -->
+
+A faixa inicial de tarefas dos LEDs é deliberadamente aritmética, eliminando a
+necessidade de uma tabela separada de IDs.
 
 <!-- section: callback-rules -->
 ## Regras dos callbacks
