@@ -45,6 +45,12 @@ static_assert(Config::INCREASE_INTERVAL_BUTTON_PIN == A2,
               "Increase button pin violates AVR PINC contract");
 static_assert(Config::SCHEDULER_HEARTBEAT_LED_PIN == A3,
               "Heartbeat pin violates AVR PORTC contract");
+static_assert(Config::TFT_MOSI_PIN == 11,
+              "TFT MOSI violates AVR SPI relationship");
+static_assert(Config::DISPLAY_IDLE_LED_PIN == 12,
+              "Display-idle LED must remain on hardware MISO/D12");
+static_assert(Config::TFT_SCK_PIN == 13,
+              "TFT SCK violates AVR SPI relationship");
 static_assert(AvrContracts::BLINK_INTERVAL_SCALE_BASE == 2,
               "currentBlinkIntervalMs() requires a power-of-two x2 scale");
 static_assert(AvrContracts::MAX_CONFIGURED_SCHEDULER_PERIOD_MS <
