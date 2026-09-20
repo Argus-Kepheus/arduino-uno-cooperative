@@ -20,6 +20,8 @@ RUNTIME_PATH = CONFIG_DIR / "runtime.json"
 AVR_PATH = CONFIG_DIR / "avr.json"
 TOOLCHAIN_PATH = CONFIG_DIR / "toolchain.json"
 PROJECT_CONFIG_PATH = ROOT / "project_config.h"
+AVR_CONTRACTS_PATH = ROOT / "avr_contracts.h"
+AVR_FAST_IO_PATH = ROOT / "avr_fast_io.h"
 LIBRARIES_PATH = ROOT / "libraries.txt"
 DIAGRAM_PATH = ROOT / "diagram.json"
 SKETCH_PATH = ROOT / "sketch.ino"
@@ -29,6 +31,7 @@ TFT_PATH = ROOT / "tft_dashboard.h"
 WOKWI_PROJECT_PATH = ROOT / "wokwi-project.txt"
 
 sys.path.insert(0, str(ROOT / "tools"))
+from generate_avr_contracts import render_avr_contracts  # noqa: E402
 from generate_libraries import render_libraries  # noqa: E402
 from generate_project_config import render_project_config  # noqa: E402
 
@@ -94,6 +97,8 @@ def check_required_files() -> None:
         AVR_PATH,
         TOOLCHAIN_PATH,
         PROJECT_CONFIG_PATH,
+        AVR_CONTRACTS_PATH,
+        AVR_FAST_IO_PATH,
         LIBRARIES_PATH,
         DIAGRAM_PATH,
         SKETCH_PATH,
@@ -101,6 +106,7 @@ def check_required_files() -> None:
         BUTTON_PATH,
         TFT_PATH,
         ROOT / "tools" / "generate_project_config.py",
+        ROOT / "tools" / "generate_avr_contracts.py",
         ROOT / "tools" / "generate_libraries.py",
     ):
         if not path.exists():
@@ -127,6 +133,17 @@ def check_generated_files(
             )
     except Exception as exc:
         fail(f"Cannot render project_config.h: {exc}")
+
+    try:
+        expected_avr_contracts = render_avr_contracts(hardware, runtime, avr)
+        actual_avr_contracts = AVR_CONTRACTS_PATH.read_text(encoding="utf-8")
+        if actual_avr_contracts != expected_avr_contracts:
+            fail(
+                "avr_contracts.h is stale; run "
+                "python tools/generate_avr_contracts.py --write"
+            )
+    except Exception as exc:
+        fail(f"Cannot render avr_contracts.h: {exc}")
 
     try:
         expected_libraries = render_libraries(toolchain)
@@ -365,10 +382,62 @@ def check_firmware_contracts(runtime: dict, avr: dict, hardware: dict) -> None:
     scheduler_h = SCHEDULER_PATH.read_text(encoding="utf-8")
     button_h = BUTTON_PATH.read_text(encoding="utf-8")
     tft_h = TFT_PATH.read_text(encoding="utf-8")
+    fast_io_h = AVR_FAST_IO_PATH.read_text(encoding="utf-8")
+    contracts_h = AVR_CONTRACTS_PATH.read_text(encoding="utf-8")
 
-    match = re.search(r"MAX_TASKS\s*=\s*(\d+)", scheduler_h)
-    if not match or int(match.group(1)) != avr["scheduler"]["maximum_tasks"]:
-        fail("cooperative_scheduler.h MAX_TASKS differs from avr.json")
+    if '#include "avr_fast_io.h"' not in sketch:
+        fail("sketch.ino must include avr_fast_io.h")
+    if '#include "avr_contracts.h"' not in sketch:
+        fail("sketch.ino must include avr_contracts.h")
+
+    for register in ("PORTD", "PINC", "PORTC"):
+        if register in sketch:
+            fail(
+                f"sketch.ino directly references {register}; "
+                "AVR register access belongs in avr_fast_io.h"
+            )
+
+    required_fast_io_fragments = (
+        "namespace AvrFastIo",
+        "PORTD ^=",
+        "PINC;",
+        "PORTC ^=",
+        "AvrContracts::BLUE_LED_PORT_FIRST_BIT",
+        "AvrContracts::MAIN_BUTTON_PORT_BIT",
+        "AvrContracts::DECREASE_BUTTON_PORT_BIT",
+        "AvrContracts::INCREASE_BUTTON_PORT_BIT",
+        "AvrContracts::HEARTBEAT_PORT_BIT",
+    )
+    for fragment in required_fast_io_fragments:
+        if fragment not in fast_io_h:
+            fail(f"avr_fast_io.h missing required fragment: {fragment}")
+
+    if "AvrFastIo::toggleBlueLed(index)" not in sketch:
+        fail("sketch.ino does not route blue LED toggles through AvrFastIo")
+    if "AvrFastIo::sampleButtons(" not in sketch:
+        fail("sketch.ino does not route button sampling through AvrFastIo")
+    if "AvrFastIo::toggleSchedulerHeartbeat()" not in sketch:
+        fail("sketch.ino does not route heartbeat through AvrFastIo")
+
+    if (
+        "AvrContracts::BLUE_TASK_FIRST_ID" not in sketch
+        or "AvrContracts::BLUE_TASK_COUNT" not in sketch
+    ):
+        fail("sketch.ino does not consume generated blue-task ID contracts")
+
+    if '#include "avr_contracts.h"' not in scheduler_h:
+        fail("cooperative_scheduler.h must include avr_contracts.h")
+    if "AvrContracts::SCHEDULER_MAX_TASKS" not in scheduler_h:
+        fail("Scheduler capacity is not bound to generated AVR contracts")
+    if scheduler_h.count("AvrContracts::SCHEDULER_HALF_RANGE_MS") < 3:
+        fail("Scheduler half-range guards are not fully bound to AVR contracts")
+    if re.search(r"\b32768U?\b", scheduler_h):
+        fail("cooperative_scheduler.h still contains a manual 32768 half-range literal")
+    if not re.search(
+        r"static_assert\s*\(\s*sizeof\(TickMs\)\s*==\s*2",
+        scheduler_h,
+    ):
+        fail("Scheduler is missing its 16-bit TickMs compile-time assertion")
 
     register_match = re.search(
         r"void\s+registerTasks\s*\(\s*\)\s*\{(.*?)\n\}",
@@ -387,26 +456,22 @@ def check_firmware_contracts(runtime: dict, avr: dict, hardware: dict) -> None:
                 "Scheduler registration order differs from avr.json: "
                 f"{callbacks}"
             )
+        if len(callbacks) != avr["scheduler"]["expected_registered_tasks"]:
+            fail(
+                "Scheduler registered-task count differs from avr.json: "
+                f"{len(callbacks)}"
+            )
 
-    if (
-        "PORTD ^=" not in sketch
-        or "(uint8_t)(1U << pin)" not in sketch
-    ):
-        fail("Blue-LED AVR direct PORTD fast path is missing")
-
-    required_button_fragments = (
-        "const uint8_t pinc =",
-        "PINC;",
-        "!(pinc & (1U << 0))",
-        "!(pinc & (1U << 1))",
-        "!(pinc & (1U << 2))",
+    expected_contract_literals = (
+        f"SCHEDULER_MAX_TASKS = {avr['scheduler']['maximum_tasks']}",
+        f"SCHEDULER_HALF_RANGE_MS = {avr['scheduler']['signed_comparison_half_range_ms']}U",
+        f"BLUE_TASK_FIRST_ID = {avr['scheduler']['first_blue_task_id']}",
+        f"BLUE_TASK_COUNT = {avr['scheduler']['blue_task_count']}",
+        f"BLINK_INTERVAL_SCALE_BASE = {runtime['blinking_leds']['shared_interval']['scale_base']}",
     )
-    for fragment in required_button_fragments:
-        if fragment not in sketch:
-            fail(f"Button AVR fast path missing fragment: {fragment}")
-
-    if "PORTC ^=" not in sketch or "(uint8_t)(1U << 3)" not in sketch:
-        fail("Scheduler-heartbeat AVR PORTC fast path is missing")
+    for fragment in expected_contract_literals:
+        if fragment not in contracts_h:
+            fail(f"avr_contracts.h missing canonical contract: {fragment}")
 
     debounce = runtime["buttons"]["debounce_ms"]
     match = re.search(r"debounceMs_\s*\(\s*(\d+)\s*\)", button_h)
@@ -417,7 +482,10 @@ def check_firmware_contracts(runtime: dict, avr: dict, hardware: dict) -> None:
         )
 
     rotation = hardware["components"]["displays"]["tft"]["configured_rotation"]
-    rotations = [int(value) for value in re.findall(r"setRotation\(\s*(\d+)\s*\)", tft_h)]
+    rotations = [
+        int(value)
+        for value in re.findall(r"setRotation\(\s*(\d+)\s*\)", tft_h)
+    ]
     if rotations and any(value != rotation for value in rotations):
         fail(
             f"TFT setRotation values {rotations} differ from canonical "
