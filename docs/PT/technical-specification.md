@@ -1,5 +1,10 @@
+<!-- doc-id: technical-specification -->
+<!-- language: PT -->
+<!-- content-revision: 1 -->
+
 # Especificação Técnica
 
+<!-- section: purpose -->
 ## 1. Objetivo
 
 O `arduino-uno-cooperative` demonstra concorrência cooperativa em um Arduino
@@ -7,6 +12,7 @@ Uno R3, preservando conceitos do projeto `esp32-asyncio` sem tentar reproduzir
 o `asyncio` do MicroPython. A restrição do ATmega328P - 8 bits, 16 MHz e apenas
 2 KiB de SRAM - faz parte do experimento.
 
+<!-- section: baseline-principles -->
 ## 2. Princípios da versão-base
 
 1. Não utilizar RTOS, threads ou `TaskScheduler`.
@@ -20,6 +26,7 @@ o `asyncio` do MicroPython. A restrição do ATmega328P - 8 bits, 16 MHz e apena
 9. Instrumentar duração de callbacks, atraso, overruns, passagens e SRAM.
 10. Descartar liberações perdidas em vez de executar rajadas de recuperação.
 
+<!-- section: tasks -->
 ## 3. Tarefas
 
 | Tarefa | Período nominal | Função |
@@ -33,6 +40,7 @@ o `asyncio` do MicroPython. A restrição do ATmega328P - 8 bits, 16 MHz e apena
 
 Total: **11 tarefas**.
 
+<!-- section: blue-led-intervals -->
 ## 4. Intervalos dos LEDs
 
 Os seis LEDs compartilham o mesmo valor de período, mas mantêm tarefas próprias:
@@ -48,6 +56,7 @@ Os seis LEDs compartilham o mesmo valor de período, mas mantêm tarefas própri
 
 Valor inicial: **500 ms**.
 
+<!-- section: inputs-debounce -->
 ## 5. Entradas e debounce
 
 Os três botões utilizam `INPUT_PULLUP`, portanto pressionado = LOW e solto =
@@ -56,20 +65,24 @@ principal reage a pressão e liberação; os dois botões de intervalo reagem
 somente à borda de pressão e não repetem automaticamente ao permanecerem
 pressionados.
 
+<!-- section: displays -->
 ## 6. Displays
 
+<!-- section: ili9341 -->
 ### ILI9341
 
 Display principal, em orientação horizontal. Utiliza SPI por software para
 preservar D12 como GPIO. Funções: gráficos `APP BUSY` e SRAM livre, métricas,
 estado dos botões e console circular de eventos.
 
+<!-- section: ssd1306 -->
 ### SSD1306
 
 Display diagnóstico compacto em I2C de hardware, endereço `0x3C`. Utiliza
 `SSD1306Ascii`, evitando um framebuffer de 1024 bytes. Atualização limitada a
 aproximadamente 1 Hz.
 
+<!-- section: metrics -->
 ## 7. Métricas
 
 - **APP BUSY:** fração da janela de amostragem consumida dentro dos callbacks
@@ -82,6 +95,7 @@ aproximadamente 1 Hz.
 - **MAX LATE:** maior atraso entre liberação programada e execução real.
 - **OVR:** liberações perdidas e descartadas pela política de degradação.
 
+<!-- section: sram -->
 ## 8. SRAM
 
 Meta desejável: **>= 512 bytes livres estimados**.
@@ -94,11 +108,13 @@ revisão.
 Devem ser evitados `String`, `new`, `malloc`, containers dinâmicos e grandes
 buffers gráficos durante a operação normal.
 
+<!-- section: communication -->
 ## 9. Comunicação
 
 UART: 115200 baud, D0/RX e D1/TX reservados. O monitor serial deve continuar
 funcionando mesmo quando os displays apresentarem limitações ou falhas.
 
+<!-- section: acceptance-criteria -->
 ## 10. Critérios de aceitação
 
 A versão-base deve:
@@ -115,6 +131,7 @@ A versão-base deve:
 - atravessar overflow do relógio modular sem falha;
 - permanecer estável em ensaio integrado prolongado.
 
+<!-- section: future-work -->
 ## 11. Trabalhos futuros
 
 Ficam abertos: `TaskScheduler`, AceRoutine, SPI de hardware com nova pinagem,
