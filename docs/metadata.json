@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0",
+  "canonical_language": "EN",
+  "languages": {
+    "EN": {
+      "locale": "en",
+      "role": "canonical"
+    },
+    "PT": {
+      "locale": "pt-BR",
+      "role": "translation"
+    }
+  },
+  "documents": {
+    "project-overview": {
+      "content_revision": 1,
+      "paths": {
+        "EN": "docs/EN/README.md",
+        "PT": "docs/PT/README.md"
+      },
+      "required_sections": [
+        "baseline-architecture",
+        "documents",
+        "baseline-status"
+      ]
+    },
+    "architecture": {
+      "content_revision": 1,
+      "paths": {
+        "EN": "docs/EN/architecture.md",
+        "PT": "docs/PT/architecture.md"
+      },
+      "required_sections": [
+        "overview",
+        "layers",
+        "blue-leds",
+        "display-pipeline",
+        "event-console",
+        "fault-isolation",
+        "evolution-policy"
+      ]
+    },
+    "displays": {
+      "content_revision": 1,
+      "paths": {
+        "EN": "docs/EN/displays.md",
+        "PT": "docs/PT/displays.md"
+      },
+      "required_sections": [
+        "strategy",
+        "ili9341",
+        "ssd1306",
+        "visual-snapshot",
+        "display-activity-led",
+        "builtin-led",
+        "functional-priority"
+      ]
+    },
+    "pinout": {
+      "content_revision": 1,
+      "paths": {
+        "EN": "docs/EN/pinout.md",
+        "PT": "docs/PT/pinout.md"
+      },
+      "required_sections": [
+        "tft",
+        "display-activity-led",
+        "builtin-led",
+        "oled",
+        "buttons",
+        "uart"
+      ]
+    },
+    "scheduler": {
+      "content_revision": 1,
+      "paths": {
+        "EN": "docs/EN/scheduler.md",
+        "PT": "docs/PT/scheduler.md"
+      },
+      "required_sections": [
+        "model",
+        "compact-descriptor",
+        "modular-clock",
+        "fixed-rate",
+        "overrun-policy",
+        "period-changes",
+        "instrumentation",
+        "registration-order",
+        "callback-rules"
+      ]
+    },
+    "technical-specification": {
+      "content_revision": 1,
+      "paths": {
+        "EN": "docs/EN/technical-specification.md",
+        "PT": "docs/PT/technical-specification.md"
+      },
+      "required_sections": [
+        "purpose",
+        "baseline-principles",
+        "tasks",
+        "blue-led-intervals",
+        "inputs-debounce",
+        "displays",
+        "ili9341",
+        "ssd1306",
+        "metrics",
+        "sram",
+        "communication",
+        "acceptance-criteria",
+        "future-work"
+      ]
+    },
+    "validation-checklist": {
+      "content_revision": 1,
+      "paths": {
+        "EN": "docs/EN/validation-checklist.md",
+        "PT": "docs/PT/validation-checklist.md"
+      },
+      "required_sections": [
+        "build-startup",
+        "blue-leds",
+        "buttons",
+        "scheduler",
+        "tft",
+        "oled",
+        "indicators",
+        "sram",
+        "integrated-stress",
+        "result-record"
+      ]
+    }
+  }
+}
