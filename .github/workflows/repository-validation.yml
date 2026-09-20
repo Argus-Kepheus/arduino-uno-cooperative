@@ -29,10 +29,25 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Read pinned toolchain
+        id: toolchain
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          with open("config/toolchain.json", encoding="utf-8") as handle:
+              toolchain = json.load(handle)
+
+          version = toolchain["arduino_cli"]["version"]
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"arduino_cli={version}\n")
+          PY
+
       - name: Install pinned Arduino CLI
         uses: arduino/setup-arduino-cli@v2
         with:
-          version: "1.5.1"
+          version: ${{ steps.toolchain.outputs.arduino_cli }}
 
       - name: Show tool versions
         run: |

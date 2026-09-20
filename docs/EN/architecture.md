@@ -1,6 +1,6 @@
 <!-- doc-id: architecture -->
 <!-- language: EN -->
-<!-- content-revision: 2 -->
+<!-- content-revision: 3 -->
 
 # Firmware Architecture
 
@@ -45,6 +45,10 @@ timekeeping and UART, but they are not the application architecture.
 - **Build boundary**: `tools/build_firmware.py` stages a specification-compliant
   Arduino sketch and renders an isolated pinned build profile before invoking
   Arduino CLI.
+- **Continuous integration**: `.github/workflows/repository-validation.yml`
+  executes generated-artifact checks, repository validation and a real
+  profile-isolated Arduino Uno compilation on pushes, pull requests and manual
+  dispatch.
 
 <!-- section: blue-leds -->
 ## Six independent LEDs

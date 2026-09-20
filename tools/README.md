@@ -166,6 +166,29 @@ the integrated sketch has executed successfully in Wokwi or on physical
 hardware. Standalone manual hardware checks live under `diagnostics/`; the
 `tests/` namespace is reserved for future non-interactive automated tests.
 
+## Continuous integration
+
+`.github/workflows/repository-validation.yml` mirrors the local validation
+boundary on GitHub-hosted Ubuntu runners.
+
+For pushes to `main`, pull requests and manual dispatch it:
+
+1. checks out the repository;
+2. installs Python;
+3. reads the pinned Arduino CLI version from `config/toolchain.json`;
+4. installs that exact Arduino CLI version with the official Arduino action;
+5. checks every generated artifact/region;
+6. runs `tools/validate_repository.py`;
+7. runs `tools/build_firmware.py`, producing a real isolated Uno compilation.
+
+The workflow has `contents: read` permissions and concurrency cancellation so
+obsolete runs for the same ref do not waste runner time.
+
+A green workflow is stronger than static validation because it proves a clean
+GitHub-hosted environment can resolve the pinned build profile and compile the
+integrated firmware. It still does not prove Wokwi runtime behavior or physical
+Arduino Uno behavior.
+
 ## Normal edit workflow
 
 For a configuration change:

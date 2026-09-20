@@ -32,6 +32,7 @@ WOKWI_PROJECT_PATH = ROOT / "wokwi-project.txt"
 DOCS_METADATA_PATH = ROOT / "docs" / "metadata.json"
 DIAGNOSTICS_METADATA_PATH = ROOT / "diagnostics" / "metadata.json"
 TESTS_README_PATH = ROOT / "tests" / "README.md"
+CI_WORKFLOW_PATH = ROOT / ".github" / "workflows" / "repository-validation.yml"
 
 sys.path.insert(0, str(ROOT / "tools"))
 from build_firmware import render_build_profile  # noqa: E402
@@ -113,6 +114,7 @@ def check_required_files() -> None:
         DOCS_METADATA_PATH,
         DIAGNOSTICS_METADATA_PATH,
         TESTS_README_PATH,
+        CI_WORKFLOW_PATH,
         ROOT / "tools" / "build_firmware.py",
         ROOT / "tools" / "generate_project_config.py",
         ROOT / "tools" / "generate_avr_contracts.py",
@@ -501,11 +503,11 @@ def check_firmware_contracts(runtime: dict, avr: dict, hardware: dict) -> None:
 
 
 HEADER_PATTERNS = {
-    "doc_id": re.compile(r"<!--\\s*doc-id:\\s*([^>]+?)\\s*-->"),
-    "language": re.compile(r"<!--\\s*language:\\s*([^>]+?)\\s*-->"),
-    "revision": re.compile(r"<!--\\s*content-revision:\\s*([^>]+?)\\s*-->"),
+    "doc_id": re.compile(r"<!--\s*doc-id:\s*([^>]+?)\s*-->"),
+    "language": re.compile(r"<!--\s*language:\s*([^>]+?)\s*-->"),
+    "revision": re.compile(r"<!--\s*content-revision:\s*([^>]+?)\s*-->"),
 }
-SECTION_PATTERN = re.compile(r"<!--\\s*section:\\s*([^>]+?)\\s*-->")
+SECTION_PATTERN = re.compile(r"<!--\s*section:\s*([^>]+?)\s*-->")
 
 
 
@@ -708,6 +710,50 @@ def check_diagnostics_semantics() -> None:
             )
 
 
+
+def check_ci_workflow(toolchain: dict) -> None:
+    if not CI_WORKFLOW_PATH.exists():
+        fail("Missing GitHub Actions repository validation workflow")
+        return
+
+    text = CI_WORKFLOW_PATH.read_text(encoding="utf-8")
+    required_fragments = (
+        "name: Repository validation",
+        "push:",
+        "pull_request:",
+        "workflow_dispatch:",
+        "permissions:",
+        "contents: read",
+        "concurrency:",
+        "cancel-in-progress: true",
+        "uses: actions/checkout@v7.0.1",
+        "uses: actions/setup-python@v7.0.0",
+        "uses: arduino/setup-arduino-cli@v2",
+        "steps.toolchain.outputs.arduino_cli",
+        "python tools/generate_project_config.py --check",
+        "python tools/generate_avr_contracts.py --check",
+        "python tools/generate_libraries.py --check",
+        "python tools/generate_docs.py --check",
+        "python tools/validate_repository.py",
+        "python tools/build_firmware.py",
+    )
+    for fragment in required_fragments:
+        if fragment not in text:
+            fail(f"CI workflow missing required fragment: {fragment}")
+
+    if toolchain.get("arduino_cli", {}).get("version") not in text:
+        # The workflow intentionally reads the version dynamically rather than
+        # embedding it. Require the config-read path if no literal is present.
+        if 'toolchain["arduino_cli"]["version"]' not in text:
+            fail(
+                "CI workflow neither embeds nor reads the canonical "
+                "Arduino CLI version"
+            )
+
+    if "version: ${{ steps.toolchain.outputs.arduino_cli }}" not in text:
+        fail("CI Arduino CLI action must consume the canonical version output")
+
+
 def check_toolchain(toolchain: dict) -> None:
     if WOKWI_PROJECT_PATH.exists():
         text = WOKWI_PROJECT_PATH.read_text(encoding="utf-8")
@@ -788,6 +834,7 @@ def main() -> int:
         check_diagram(hardware)
         check_firmware_contracts(runtime, avr, hardware)
         check_toolchain(toolchain)
+        check_ci_workflow(toolchain)
         check_generated_documentation(hardware, runtime, avr, toolchain)
 
     if docs_metadata:
