@@ -1,5 +1,10 @@
+<!-- doc-id: validation-checklist -->
+<!-- language: EN -->
+<!-- content-revision: 1 -->
+
 # Validation Checklist
 
+<!-- section: build-startup -->
 ## Build and startup
 
 - [ ] Builds for Arduino Uno R3 in Wokwi web.
@@ -11,6 +16,7 @@
 - [ ] Yellow heartbeat LED is visible.
 - [ ] Orange LED returns HIGH after startup.
 
+<!-- section: blue-leds -->
 ## Blue LEDs
 
 - [ ] LEDs 1 through 6 blink.
@@ -19,6 +25,7 @@
 - [ ] 125, 250, 500, 1000, 2000, and 4000 ms all work.
 - [ ] Lower and upper limits are enforced.
 
+<!-- section: buttons -->
 ## Buttons
 
 - [ ] Main button controls green LED after debounce.
@@ -27,12 +34,14 @@
 - [ ] Holding an interval button does not auto-repeat.
 - [ ] Debounce contains no `delay()`.
 
+<!-- section: scheduler -->
 ## Scheduler
 
 - [ ] A3 heartbeat remains visible.
 - [ ] `PASS/s`, `MAX CALLBACK`, `MAX LATE`, and `OVR` update.
 - [ ] The system crosses `65535 ms -> 0 ms` without stopping or bursting tasks.
 
+<!-- section: tft -->
 ## TFT
 
 - [ ] Uses D9/D10/D11/D13 with software SPI.
@@ -42,6 +51,7 @@
 - [ ] Unchanged values are not continuously redrawn.
 - [ ] No `fillScreen()` occurs during normal operation.
 
+<!-- section: oled -->
 ## OLED
 
 - [ ] Uses A4/SDA and A5/SCL at `0x3C`.
@@ -49,6 +59,7 @@
 - [ ] Refreshes at about 1 Hz.
 - [ ] Missing OLED does not stop the application.
 
+<!-- section: indicators -->
 ## Indicators
 
 - [ ] D12 drives the orange LED.
@@ -56,6 +67,7 @@
 - [ ] A3 drives the yellow heartbeat.
 - [ ] Built-in D13 `L` activity may reflect TFT clock without being treated as an error.
 
+<!-- section: sram -->
 ## SRAM
 
 Record compiled static SRAM, initial `SRAM FREE`, and `RAM LOW`.
@@ -64,6 +76,7 @@ Record compiled static SRAM, initial `SRAM FREE`, and `RAM LOW`.
 - [ ] Preferably RAM LOW remains >= 512 bytes.
 - [ ] No unexplained progressive loss occurs.
 
+<!-- section: integrated-stress -->
 ## Integrated stress
 
 - [ ] 125 ms interval with TFT, OLED, and serial active.
@@ -74,6 +87,7 @@ Record compiled static SRAM, initial `SRAM FREE`, and `RAM LOW`.
 - [ ] Serial remains usable under graphics load.
 - [ ] Heartbeat remains continuous.
 
+<!-- section: result-record -->
 ## Result record
 
 Date:
