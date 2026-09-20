@@ -13,7 +13,7 @@
   },
   "documents": {
     "project-overview": {
-      "content_revision": 1,
+      "content_revision": 2,
       "paths": {
         "EN": "docs/EN/README.md",
         "PT": "docs/PT/README.md"
@@ -41,7 +41,7 @@
       ]
     },
     "displays": {
-      "content_revision": 1,
+      "content_revision": 2,
       "paths": {
         "EN": "docs/EN/displays.md",
         "PT": "docs/PT/displays.md"
@@ -57,7 +57,7 @@
       ]
     },
     "pinout": {
-      "content_revision": 1,
+      "content_revision": 2,
       "paths": {
         "EN": "docs/EN/pinout.md",
         "PT": "docs/PT/pinout.md"
@@ -72,7 +72,7 @@
       ]
     },
     "scheduler": {
-      "content_revision": 1,
+      "content_revision": 2,
       "paths": {
         "EN": "docs/EN/scheduler.md",
         "PT": "docs/PT/scheduler.md"
@@ -90,7 +90,7 @@
       ]
     },
     "technical-specification": {
-      "content_revision": 1,
+      "content_revision": 2,
       "paths": {
         "EN": "docs/EN/technical-specification.md",
         "PT": "docs/PT/technical-specification.md"
