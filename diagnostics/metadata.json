@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "mode": "manual",
+  "target": [
+    "Wokwi web",
+    "physical Arduino Uno"
+  ],
+  "execution": "standalone; not compiled with the integrated firmware",
+  "ordered_diagnostics": [
+    {
+      "id": "DIAG-01",
+      "file": "01_blue_led_basic.ino",
+      "purpose": "D2 and first blue LED"
+    },
+    {
+      "id": "DIAG-02",
+      "file": "02_all_blue_leds_basic.ino",
+      "purpose": "D2-D7 and all six blue LEDs"
+    },
+    {
+      "id": "DIAG-03",
+      "file": "03_green_button_led.ino",
+      "purpose": "A0, simple debounce and D8"
+    },
+    {
+      "id": "DIAG-04",
+      "file": "04_interval_buttons.ino",
+      "purpose": "A1/A2 and interval limits"
+    },
+    {
+      "id": "DIAG-05",
+      "file": "05_status_leds.ino",
+      "purpose": "orange display indicator and yellow heartbeat"
+    },
+    {
+      "id": "DIAG-06",
+      "file": "06_oled_basic.ino",
+      "purpose": "SSD1306 / hardware I2C"
+    },
+    {
+      "id": "DIAG-07",
+      "file": "07_tft_basic_software_spi.ino",
+      "purpose": "ILI9341 / software SPI"
+    },
+    {
+      "id": "DIAG-08",
+      "file": "08_tft_oled_together.ino",
+      "purpose": "TFT and OLED together"
+    },
+    {
+      "id": "DIAG-09",
+      "file": "09_native_scheduler_basic.ino",
+      "purpose": "six independent scheduler callbacks"
+    },
+    {
+      "id": "DIAG-10",
+      "file": "10_scheduler_rollover.ino",
+      "purpose": "16-bit modular scheduler arithmetic"
+    }
+  ],
+  "notes": [
+    "Diagnostics are intentionally self-contained and may duplicate canonical pin/timing values.",
+    "Use of delay() is permitted in an isolated diagnostic even though the integrated firmware is non-blocking.",
+    "report/ is a historical snapshot and may retain the former tests/ path."
+  ]
+}
