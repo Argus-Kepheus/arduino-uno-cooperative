@@ -5,7 +5,7 @@
 Firmware para Arduino Uno R3 que explora concorrência cooperativa sem RTOS,
 threads ou `TaskScheduler`. Deriva conceitualmente do projeto `esp32-asyncio`
 (MicroPython/`asyncio`), mas usa um escalonador cooperativo nativo e estático
-em C++, adequado às restrições do ATmega328P. Onze tarefas cooperativas
+em C++, adequado às restrições do ATmega328P. Tarefas cooperativas
 controlam seis LEDs azuis independentes, três botões com debounce não
 bloqueante, um LED verde, dois indicadores de atividade, um OLED SSD1306
 diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
@@ -36,11 +36,23 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 | `avr_fast_io.h` | Única camada de implementação com acessos diretos `PORTD`/`PINC`/`PORTC` |
 | `diagram.json` | Circuito e geometria/layout do Wokwi; semântica elétrica validada contra `config/hardware.json` |
 | `libraries.txt` | Lista gerada de dependências do Wokwi |
-| `tools/` | Geração determinística e validação estática do repositório |
+| `tools/` | Geração determinística, validação estática e build Arduino reproduzível |
 | `docs/EN/` e `docs/PT/` | Documentação técnica bilíngue sob contrato semântico em `docs/metadata.json` |
 | `diagnostics/` | Diagnósticos manuais isolados para Wokwi/hardware, governados por `diagnostics/metadata.json` |
 | `tests/` | Reservado para futuros testes automatizados host-side |
 | `report/` | Relatório técnico em LaTeX e PDF |
+
+## Build reproduzível
+
+O toolchain integrado é pinado em `config/toolchain.json`. Com Arduino CLI
+1.5.1 disponível, o build isolado para Arduino Uno pode ser executado com:
+
+```text
+python tools/build_firmware.py
+```
+
+O comando cria apenas staging/artefatos sob `build/`; `sketch.ino` permanece
+inalterado para o workflow do Wokwi.
 
 ## Validação
 
