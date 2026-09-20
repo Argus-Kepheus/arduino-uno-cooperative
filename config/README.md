@@ -77,17 +77,26 @@ six task IDs being the six blue-LED callbacks.
 Those relationships live in `avr.json` so a future pin change cannot silently
 leave optimized direct-port code or scheduler assumptions inconsistent.
 
-## Unknown or unpinned toolchain values
+## Reproducible toolchain after Wave 7
 
-Wave 1 records uncertainty explicitly.
+The build toolchain is now pinned in `toolchain.json`:
 
-The repository currently does **not** pin:
+```text
+Arduino CLI      1.5.1
+Arduino AVR Core 1.8.8
+FQBN             arduino:avr:uno
+```
 
-- the `arduino-cli` version;
-- the Arduino AVR Core version.
+All external library versions were already pinned and remain canonical there.
 
-They remain `null` with `pinned: false` in `toolchain.json`. A later wave
-may pin them if reproducible CI requires it.
+`tools/build_firmware.py` creates a specification-compliant staging sketch
+under `build/`, renders an isolated Arduino CLI build profile from
+`toolchain.json`, and compiles that staged sketch. The repository retains
+`sketch.ino` at the root for Wokwi compatibility; the staging copy is renamed
+to match its temporary Arduino sketch directory.
+
+The profile isolates the build from globally installed cores/libraries and
+requests the exact versions declared in `toolchain.json`.
 
 ## Editing policy
 
