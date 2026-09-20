@@ -1,3 +1,7 @@
+<!-- doc-id: pinout -->
+<!-- language: EN -->
+<!-- content-revision: 1 -->
+
 # Official Pin Assignment
 
 | Pin | Function |
@@ -23,6 +27,7 @@
 | A4 / SDA | OLED SDA |
 | A5 / SCL | OLED SCL |
 
+<!-- section: tft -->
 ## TFT
 
 ```text
@@ -37,6 +42,7 @@ GND -> GND
 The TFT is write-only. The baseline uses software SPI so D12 can remain a normal
 GPIO.
 
+<!-- section: display-activity-led -->
 ## Orange D12 LED
 
 Logical meaning:
@@ -48,11 +54,13 @@ LOW  -> instrumented display operation in progress
 
 The indicator does not attempt to reproduce every electrical bus transition.
 
+<!-- section: builtin-led -->
 ## Built-in L LED on D13
 
 D13 is also the TFT clock, so the built-in `L` LED may show activity during
 ILI9341 transfers. This is expected.
 
+<!-- section: oled -->
 ## OLED
 
 ```text
@@ -65,10 +73,12 @@ address -> 0x3C
 
 A4/A5 use the ATmega328P hardware I2C/TWI peripheral.
 
+<!-- section: buttons -->
 ## Buttons
 
 A0, A1, and A2 use `INPUT_PULLUP` and connect to GND when pressed.
 
+<!-- section: uart -->
 ## UART
 
 D0 and D1 remain reserved exclusively for serial communication.
