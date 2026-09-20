@@ -1,9 +1,10 @@
 <!-- doc-id: pinout -->
 <!-- language: EN -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # Official Pin Assignment
 
+<!-- BEGIN GENERATED: pin-map -->
 | Pin | Function |
 |---|---|
 | D0 / RX | serial receive |
@@ -17,33 +18,26 @@
 | D8 | green LED |
 | D9 | TFT D/C |
 | D10 | TFT CS |
-| D11 | TFT MOSI - software SPI |
-| D12 | orange display idle/activity LED |
-| D13 | TFT SCK - software SPI + built-in `L` LED |
+| D11 | TFT MOSI — software SPI |
+| D12 | orange display-activity LED |
+| D13 | TFT SCK — software SPI + built-in L LED |
 | A0 | main button |
 | A1 | decrease interval |
 | A2 | increase interval |
 | A3 | yellow scheduler heartbeat LED |
 | A4 / SDA | OLED SDA |
 | A5 / SCL | OLED SCL |
+<!-- END GENERATED: pin-map -->
 
 <!-- section: tft -->
 ## TFT
 
-```text
-D9  -> D/C
-D10 -> CS
-D11 -> MOSI
-D13 -> SCK
-5V  -> VCC
-GND -> GND
-```
-
-The TFT is write-only. The baseline uses software SPI so D12 can remain a normal
-GPIO.
+Canonical signal pins are generated in the pin map above. The TFT is write-only
+and uses software SPI so the hardware-MISO pin remains available to the
+display-activity indicator.
 
 <!-- section: display-activity-led -->
-## Orange D12 LED
+## Orange display-activity LED
 
 Logical meaning:
 
@@ -52,33 +46,30 @@ HIGH -> display subsystem idle
 LOW  -> instrumented display operation in progress
 ```
 
-The indicator does not attempt to reproduce every electrical bus transition.
+Its current pin is generated in the map above. The indicator does not attempt
+to reproduce every electrical bus transition.
 
 <!-- section: builtin-led -->
-## Built-in L LED on D13
+## Built-in L LED
 
-D13 is also the TFT clock, so the built-in `L` LED may show activity during
-ILI9341 transfers. This is expected.
+The pin used as TFT SCK also drives the board's built-in `L` LED, so display
+clock activity may be visible there. This is expected; the current pin is
+generated above.
 
 <!-- section: oled -->
 ## OLED
 
-```text
-A4 -> SDA
-A5 -> SCL
-5V -> VCC
-GND -> GND
-address -> 0x3C
-```
-
-A4/A5 use the ATmega328P hardware I2C/TWI peripheral.
+The canonical SDA/SCL pins are generated above. Address, bus frequency and
+supply are owned by `config/hardware.json` and summarized in
+[`displays.md`](displays.md).
 
 <!-- section: buttons -->
 ## Buttons
 
-A0, A1, and A2 use `INPUT_PULLUP` and connect to GND when pressed.
+The three application buttons use `INPUT_PULLUP` and connect to GND when
+pressed. Their current pins and roles are generated above.
 
 <!-- section: uart -->
 ## UART
 
-D0 and D1 remain reserved exclusively for serial communication.
+The pins shown above remain reserved exclusively for serial communication.
