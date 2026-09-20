@@ -34,6 +34,7 @@ DIAGNOSTICS_METADATA_PATH = ROOT / "diagnostics" / "metadata.json"
 TESTS_README_PATH = ROOT / "tests" / "README.md"
 
 sys.path.insert(0, str(ROOT / "tools"))
+from build_firmware import render_build_profile  # noqa: E402
 from generate_avr_contracts import render_avr_contracts  # noqa: E402
 from generate_docs import render_file, target_files  # noqa: E402
 from generate_libraries import render_libraries  # noqa: E402
@@ -112,6 +113,7 @@ def check_required_files() -> None:
         DOCS_METADATA_PATH,
         DIAGNOSTICS_METADATA_PATH,
         TESTS_README_PATH,
+        ROOT / "tools" / "build_firmware.py",
         ROOT / "tools" / "generate_project_config.py",
         ROOT / "tools" / "generate_avr_contracts.py",
         ROOT / "tools" / "generate_docs.py",
@@ -481,24 +483,20 @@ def check_firmware_contracts(runtime: dict, avr: dict, hardware: dict) -> None:
         if fragment not in contracts_h:
             fail(f"avr_contracts.h missing canonical contract: {fragment}")
 
-    debounce = runtime["buttons"]["debounce_ms"]
-    match = re.search(r"debounceMs_\s*\(\s*(\d+)\s*\)", button_h)
-    if match and int(match.group(1)) != debounce:
+    if not re.search(r"debounceMs_\s*\(\s*0\s*\)", button_h):
         fail(
-            "DebouncedButton constructor default differs from canonical "
-            f"debounce ({match.group(1)} vs {debounce})"
+            "DebouncedButton constructor must use a neutral zero default; "
+            "runtime debounce belongs to Config::BUTTON_DEBOUNCE_MS"
+        )
+    if sketch.count("Config::BUTTON_DEBOUNCE_MS") < 3:
+        fail(
+            "All three integrated buttons must consume Config::BUTTON_DEBOUNCE_MS"
         )
 
-    rotation = hardware["components"]["displays"]["tft"]["configured_rotation"]
-    rotations = [
-        int(value)
-        for value in re.findall(r"setRotation\(\s*(\d+)\s*\)", tft_h)
-    ]
-    if rotations and any(value != rotation for value in rotations):
-        fail(
-            f"TFT setRotation values {rotations} differ from canonical "
-            f"rotation {rotation}"
-        )
+    if "setRotation(\n        Config::TFT_ROTATION);" not in tft_h:
+        fail("TFT rotation must be consumed from Config::TFT_ROTATION")
+    if re.search(r"setRotation\(\s*\d+\s*\)", tft_h):
+        fail("tft_dashboard.h still contains a literal TFT rotation")
 
 
 
@@ -716,6 +714,54 @@ def check_toolchain(toolchain: dict) -> None:
         url = toolchain.get("simulator", {}).get("project_url")
         if url and url not in text:
             fail("wokwi-project.txt URL differs from config/toolchain.json")
+
+    cli = toolchain.get("arduino_cli", {})
+    core = toolchain.get("arduino_avr_core", {})
+    build = toolchain.get("build", {})
+
+    semver = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
+    if cli.get("pinned") is not True or not semver.match(str(cli.get("version", ""))):
+        fail("Arduino CLI must be pinned to an exact semantic version")
+    if core.get("pinned") is not True or not semver.match(str(core.get("version", ""))):
+        fail("Arduino AVR core must be pinned to an exact semantic version")
+    if core.get("package") != "arduino:avr":
+        fail("Reproducible build must use the arduino:avr core package")
+
+    if build.get("profile_name") != "reproducible":
+        fail("Build profile name must remain reproducible")
+    if build.get("warnings") != "all":
+        fail("Reproducible build must compile with warnings=all")
+
+    primary = build.get("primary_sketch_name", "")
+    if not re.match(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,62}$", primary):
+        fail("Build staging primary sketch name violates Arduino sketch naming rules")
+
+    for key in ("staging_directory", "output_directory"):
+        value = build.get(key)
+        if not isinstance(value, str) or not value.startswith("build/"):
+            fail(f"toolchain build.{key} must remain under ignored build/")
+
+    try:
+        profile = render_build_profile(toolchain)
+    except Exception as exc:
+        fail(f"Cannot render reproducible Arduino build profile: {exc}")
+    else:
+        required_profile_fragments = (
+            f"fqbn: {toolchain['build_target']['fqbn']}",
+            f"platform: {core['package']} ({core['version']})",
+            f"default_profile: {build['profile_name']}",
+        )
+        for fragment in required_profile_fragments:
+            if fragment not in profile:
+                fail(f"Generated Arduino build profile missing: {fragment}")
+        for library in toolchain.get("libraries", []):
+            fragment = f"{library['name']} ({library['version']})"
+            if fragment not in profile:
+                fail(f"Generated Arduino build profile missing library: {fragment}")
+
+    gitignore = ROOT / ".gitignore"
+    if not gitignore.exists() or "build/" not in gitignore.read_text(encoding="utf-8"):
+        fail("Reproducible build staging/output must remain ignored under build/")
 
 
 def main() -> int:
