@@ -21,15 +21,15 @@
     "fqbn": "arduino:avr:uno"
   },
   "arduino_cli": {
-    "pinned": false,
-    "version": null,
-    "note": "The repository does not currently pin an arduino-cli version."
+    "pinned": true,
+    "version": "1.5.1",
+    "note": "Pinned stable Arduino CLI for reproducible local/CI builds."
   },
   "arduino_avr_core": {
     "package": "arduino:avr",
-    "pinned": false,
-    "version": null,
-    "note": "The repository targets Arduino Uno/ATmega328P but does not currently pin an Arduino AVR Core version."
+    "pinned": true,
+    "version": "1.8.8",
+    "note": "Pinned Arduino AVR Boards core for the reproducible Uno build profile."
   },
   "simulator": {
     "provider": "Wokwi",
@@ -54,5 +54,12 @@
       "version": "1.3.5"
     }
   ],
-  "libraries_file": "libraries.txt"
+  "libraries_file": "libraries.txt",
+  "build": {
+    "profile_name": "reproducible",
+    "primary_sketch_name": "arduino_uno_cooperative",
+    "warnings": "all",
+    "staging_directory": "build/staging/arduino_uno_cooperative",
+    "output_directory": "build/integrated"
+  }
 }
