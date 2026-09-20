@@ -503,11 +503,11 @@ def check_firmware_contracts(runtime: dict, avr: dict, hardware: dict) -> None:
 
 
 HEADER_PATTERNS = {
-    "doc_id": re.compile(r"<!--\\s*doc-id:\\s*([^>]+?)\\s*-->"),
-    "language": re.compile(r"<!--\\s*language:\\s*([^>]+?)\\s*-->"),
-    "revision": re.compile(r"<!--\\s*content-revision:\\s*([^>]+?)\\s*-->"),
+    "doc_id": re.compile(r"<!--\s*doc-id:\s*([^>]+?)\s*-->"),
+    "language": re.compile(r"<!--\s*language:\s*([^>]+?)\s*-->"),
+    "revision": re.compile(r"<!--\s*content-revision:\s*([^>]+?)\s*-->"),
 }
-SECTION_PATTERN = re.compile(r"<!--\\s*section:\\s*([^>]+?)\\s*-->")
+SECTION_PATTERN = re.compile(r"<!--\s*section:\s*([^>]+?)\s*-->")
 
 
 
