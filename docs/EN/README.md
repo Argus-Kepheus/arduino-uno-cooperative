@@ -1,6 +1,6 @@
 <!-- doc-id: project-overview -->
 <!-- language: EN -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # arduino-uno-cooperative
 
@@ -17,18 +17,27 @@ The initial simulation target is **Wokwi in the web browser**.
 <!-- section: baseline-architecture -->
 ## Baseline architecture
 
-- Arduino Uno R3, ATmega328P, 16 MHz;
+<!-- BEGIN GENERATED: baseline-summary -->
+| Property | Canonical value |
+|---|---|
+| Board | Arduino Uno R3 |
+| MCU / clock | ATmega328P / 16 MHz |
+| Registered tasks | 11 |
+| Blue LEDs | D2–D7 (6) |
+| Buttons | A0 / A1 / A2 |
+| Green LED | D8 |
+| Display-activity LED | D12 |
+| Scheduler heartbeat | A3 |
+| TFT | software SPI: D9/D10/D11/D13 |
+| OLED | hardware I2C: A4/SDA, A5/SCL |
+| UART | D0/RX, D1/TX |
+| Libraries | Adafruit GFX Library 1.12.6, Adafruit ILI9341 1.6.3, Adafruit BusIO 1.17.4, SSD1306Ascii 1.3.5 |
+<!-- END GENERATED: baseline-summary -->
+
+The generated table owns the current board, pin, bus, task-count and library-version facts. The architectural policies remain manual:
+
 - C++ / Arduino framework;
 - native static cooperative scheduler;
-- 11 registered tasks;
-- six blue LEDs on D2-D7, one task per LED;
-- main button on A0 and interval buttons on A1/A2;
-- green LED on D8;
-- orange display-activity LED on D12;
-- yellow scheduler-heartbeat LED on A3;
-- ILI9341 TFT using software SPI: D9/D10/D11/D13;
-- SSD1306 OLED on hardware I2C: A4/SDA and A5/SCL;
-- UART preserved on D0/RX and D1/TX;
 - no `delay()` during normal operation;
 - no deliberate dynamic allocation during normal operation.
 
