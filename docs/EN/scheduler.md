@@ -1,6 +1,6 @@
 <!-- doc-id: scheduler -->
 <!-- language: EN -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # Cooperative Scheduler
 
@@ -22,15 +22,25 @@ struct Task {
 };
 ```
 
-Baseline capacity is exactly 11 tasks.
+<!-- BEGIN GENERATED: scheduler-summary -->
+| Contract | Canonical value |
+|---|---|
+| Capacity | 11 |
+| Tick | uint16_t / 16 bit |
+| Modular range | 65536 ms |
+| Signed half-range | 32768 ms |
+| Longest configured period | 4000 ms |
+| Scheduling policy | fixed-rate |
+| Missed-release policy | skip missed releases; do not execute catch-up bursts |
+<!-- END GENERATED: scheduler-summary -->
 
 <!-- section: modular-clock -->
 ## 16-bit modular clock
 
-The scheduler uses the lower 16 bits of `millis()`. Comparisons use signed
-modular differences, allowing `65535 -> 0` rollover without stopping the system,
-provided intervals remain below 32768 ms and the scheduler is not prevented
-from running for such a long interval. The current longest period is 4000 ms.
+The scheduler uses the lower bits of `millis()` represented by its generated
+tick contract. Comparisons use signed modular differences, allowing modular
+rollover without stopping the system as long as the half-range rule summarized
+above is respected.
 
 <!-- section: fixed-rate -->
 ## Fixed-rate scheduling
@@ -67,8 +77,24 @@ callback duration, maximum lateness, and missed releases.
 <!-- section: registration-order -->
 ## Registration order
 
-IDs 0 through 5 must be `blinkLed1` ... `blinkLed6`. This avoids storing an
-extra six-entry task-ID table.
+<!-- BEGIN GENERATED: registration-order -->
+| Task ID | Callback |
+|---:|---|
+| 0 | blinkLed1 |
+| 1 | blinkLed2 |
+| 2 | blinkLed3 |
+| 3 | blinkLed4 |
+| 4 | blinkLed5 |
+| 5 | blinkLed6 |
+| 6 | scanButtons |
+| 7 | sampleMetrics |
+| 8 | serviceDisplays |
+| 9 | printStatus |
+| 10 | schedulerHeartbeat |
+<!-- END GENERATED: registration-order -->
+
+The first blue-task range is intentionally arithmetic, avoiding a separate
+task-ID table.
 
 <!-- section: callback-rules -->
 ## Callback rules
