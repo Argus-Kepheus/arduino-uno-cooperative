@@ -1,3 +1,7 @@
+<!-- doc-id: pinout -->
+<!-- language: PT -->
+<!-- content-revision: 1 -->
+
 # Pinagem Oficial
 
 | Pino | Função |
@@ -23,6 +27,7 @@
 | A4 / SDA | OLED SDA |
 | A5 / SCL | OLED SCL |
 
+<!-- section: tft -->
 ## TFT
 
 ```text
@@ -37,6 +42,7 @@ GND -> GND
 A TFT é somente de escrita. O projeto-base usa SPI por software para que D12
 permaneça GPIO normal.
 
+<!-- section: display-activity-led -->
 ## LED laranja em D12
 
 Semântica lógica:
@@ -48,11 +54,13 @@ LOW  -> operação instrumentada de display em andamento
 
 O indicador não pretende mostrar cada transição elétrica dos barramentos.
 
+<!-- section: builtin-led -->
 ## LED L em D13
 
 Como D13 também é o clock da TFT, o LED `L` integrado pode apresentar atividade
 durante atualizações da ILI9341. Esse efeito é esperado.
 
+<!-- section: oled -->
 ## OLED
 
 ```text
@@ -65,10 +73,12 @@ endereço -> 0x3C
 
 A4/A5 utilizam o periférico I2C/TWI de hardware.
 
+<!-- section: buttons -->
 ## Botões
 
 A0, A1 e A2 utilizam `INPUT_PULLUP` e são conectados ao GND quando pressionados.
 
+<!-- section: uart -->
 ## UART
 
 D0 e D1 permanecem exclusivamente reservados para comunicação serial.
