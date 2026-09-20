@@ -30,6 +30,8 @@ BUTTON_PATH = ROOT / "button_debounce.h"
 TFT_PATH = ROOT / "tft_dashboard.h"
 WOKWI_PROJECT_PATH = ROOT / "wokwi-project.txt"
 DOCS_METADATA_PATH = ROOT / "docs" / "metadata.json"
+DIAGNOSTICS_METADATA_PATH = ROOT / "diagnostics" / "metadata.json"
+TESTS_README_PATH = ROOT / "tests" / "README.md"
 
 sys.path.insert(0, str(ROOT / "tools"))
 from generate_avr_contracts import render_avr_contracts  # noqa: E402
@@ -108,6 +110,8 @@ def check_required_files() -> None:
         BUTTON_PATH,
         TFT_PATH,
         DOCS_METADATA_PATH,
+        DIAGNOSTICS_METADATA_PATH,
+        TESTS_README_PATH,
         ROOT / "tools" / "generate_project_config.py",
         ROOT / "tools" / "generate_avr_contracts.py",
         ROOT / "tools" / "generate_docs.py",
@@ -621,6 +625,89 @@ def check_documentation_parity(metadata: dict) -> None:
                     f"{relative}: semantic section sequence differs from "
                     f"metadata; expected {required}, found {sections}"
                 )
+
+
+
+def check_diagnostics_semantics() -> None:
+    metadata = load_json(DIAGNOSTICS_METADATA_PATH)
+    if not metadata:
+        return
+
+    if metadata.get("schema_version") != "1.0":
+        fail("diagnostics/metadata.json: expected schema_version 1.0")
+    if metadata.get("mode") != "manual":
+        fail("diagnostics/metadata.json must declare mode=manual")
+
+    entries = metadata.get("ordered_diagnostics", [])
+    expected_ids = [f"DIAG-{index:02d}" for index in range(1, 11)]
+    ids = [entry.get("id") for entry in entries]
+    if ids != expected_ids:
+        fail(
+            "diagnostics/metadata.json must contain ordered IDs "
+            "DIAG-01 through DIAG-10"
+        )
+
+    filenames = [entry.get("file") for entry in entries]
+    if len(filenames) != len(set(filenames)):
+        fail("diagnostics/metadata.json contains duplicate filenames")
+
+    diagnostic_dir = ROOT / "diagnostics"
+    actual_ino = sorted(path.name for path in diagnostic_dir.glob("*.ino"))
+    expected_ino = sorted(
+        name for name in filenames if isinstance(name, str)
+    )
+    if actual_ino != expected_ino:
+        fail(
+            "diagnostics/*.ino inventory differs from metadata; "
+            f"expected {expected_ino}, found {actual_ino}"
+        )
+
+    for index, entry in enumerate(entries, 1):
+        filename = entry.get("file")
+        expected_prefix = f"{index:02d}_"
+        if not isinstance(filename, str) or not filename.startswith(expected_prefix):
+            fail(
+                f"{entry.get('id')}: filename must start with "
+                f"{expected_prefix!r}"
+            )
+            continue
+        path = diagnostic_dir / filename
+        if not path.exists():
+            fail(f"Missing diagnostic file: diagnostics/{filename}")
+
+    tests_ino = sorted((ROOT / "tests").glob("*.ino"))
+    if tests_ino:
+        fail(
+            "Manual Arduino diagnostics must not live under tests/: "
+            + ", ".join(path.name for path in tests_ino)
+        )
+
+    if TESTS_README_PATH.exists():
+        text = TESTS_README_PATH.read_text(encoding="utf-8").lower()
+        if "automated" not in text or "diagnostics" not in text:
+            fail(
+                "tests/README.md must reserve tests for automated tests "
+                "and point manual checks to diagnostics/"
+            )
+
+    operational_files = [
+        ROOT / "README.md",
+        ROOT / "tools" / "README.md",
+        ROOT / "docs" / "README.md",
+        ROOT / "config" / "README.md",
+    ]
+    stale_manual_path = re.compile(
+        r"tests/(?:0[1-9]|10)_[A-Za-z0-9_]+\.ino"
+    )
+    for path in operational_files:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if stale_manual_path.search(text):
+            fail(
+                f"{path.relative_to(ROOT)} still references the former "
+                "tests/ manual-diagnostic path"
+            )
 
 
 def check_toolchain(toolchain: dict) -> None:
