@@ -32,6 +32,7 @@ WOKWI_PROJECT_PATH = ROOT / "wokwi-project.txt"
 DOCS_METADATA_PATH = ROOT / "docs" / "metadata.json"
 DIAGNOSTICS_METADATA_PATH = ROOT / "diagnostics" / "metadata.json"
 TESTS_README_PATH = ROOT / "tests" / "README.md"
+TESTS_METADATA_PATH = ROOT / "tests" / "metadata.json"
 CI_WORKFLOW_PATH = ROOT / ".github" / "workflows" / "repository-validation.yml"
 
 sys.path.insert(0, str(ROOT / "tools"))
@@ -114,6 +115,7 @@ def check_required_files() -> None:
         DOCS_METADATA_PATH,
         DIAGNOSTICS_METADATA_PATH,
         TESTS_README_PATH,
+        TESTS_METADATA_PATH,
         CI_WORKFLOW_PATH,
         ROOT / "tools" / "build_firmware.py",
         ROOT / "tools" / "generate_project_config.py",
@@ -711,6 +713,47 @@ def check_diagnostics_semantics() -> None:
 
 
 
+
+def check_automated_tests_semantics() -> None:
+    metadata = load_json(TESTS_METADATA_PATH)
+    if not metadata:
+        return
+
+    if metadata.get("schema_version") != "1.0":
+        fail("tests/metadata.json: expected schema_version 1.0")
+    if metadata.get("mode") != "automated":
+        fail("tests/metadata.json must declare mode=automated")
+    if metadata.get("framework") != "python unittest":
+        fail("tests/metadata.json must declare framework=python unittest")
+
+    expected_runner = (
+        'python -m unittest discover -s tests -p "test_*.py" -v'
+    )
+    if metadata.get("runner") != expected_runner:
+        fail("tests/metadata.json runner differs from the repository test command")
+
+    entries = metadata.get("test_files", [])
+    declared = [entry.get("file") for entry in entries]
+    if len(declared) != len(set(declared)):
+        fail("tests/metadata.json contains duplicate test filenames")
+
+    actual = sorted(path.name for path in (ROOT / "tests").glob("test_*.py"))
+    expected = sorted(name for name in declared if isinstance(name, str))
+    if actual != expected:
+        fail(
+            "tests/test_*.py inventory differs from metadata; "
+            f"expected {expected}, found {actual}"
+        )
+
+    if not actual:
+        fail("tests/ must contain at least one automated host test")
+
+    for filename in actual:
+        text = (ROOT / "tests" / filename).read_text(encoding="utf-8")
+        if "unittest" not in text:
+            fail(f"tests/{filename} does not use the declared unittest framework")
+
+
 def check_ci_workflow(toolchain: dict) -> None:
     if not CI_WORKFLOW_PATH.exists():
         fail("Missing GitHub Actions repository validation workflow")
@@ -734,6 +777,7 @@ def check_ci_workflow(toolchain: dict) -> None:
         "python tools/generate_avr_contracts.py --check",
         "python tools/generate_libraries.py --check",
         "python tools/generate_docs.py --check",
+        'python -m unittest discover -s tests -p "test_*.py" -v',
         "python tools/validate_repository.py",
         "python tools/build_firmware.py",
     )
