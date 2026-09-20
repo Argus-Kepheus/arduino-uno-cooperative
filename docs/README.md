@@ -85,10 +85,6 @@ The repository validator rejects:
 - a missing, extra, duplicated or reordered required semantic section;
 - a metadata path that does not cover every maintained language.
 
-Wave 4 establishes parity governance only. Numeric/documentation deduplication
-and generated documentation regions are intentionally deferred to Wave 5.
-
-
 ## Generated technical regions
 
 Wave 5 removes manual maintenance of frequently repeated configuration facts.
@@ -125,3 +121,17 @@ python tools/validate_repository.py
 
 The validator checks generated regions byte-for-byte and also preserves the
 EN/PT semantic-parity contract.
+
+
+## Diagnostics and automated tests
+
+Manual Wokwi/physical-hardware checks live under `diagnostics/` and are
+governed by `diagnostics/metadata.json`. They are intentionally self-contained
+and may duplicate pin/timing values in order to isolate hardware independently.
+
+The `tests/` namespace is reserved for future host-side automated tests.
+Manual diagnostics and automated tests are different evidence layers and must
+not be mixed.
+
+Historical paths inside `report/` are not rewritten; the report remains a
+snapshot of the repository state that existed when it was authored.
