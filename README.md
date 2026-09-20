@@ -38,13 +38,13 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 | `diagram.json` | Circuito e geometria/layout do Wokwi; semântica elétrica validada contra `config/hardware.json` |
 | `libraries.txt` | Lista gerada de dependências do Wokwi |
 | `tools/` | Geração determinística e validação estática do repositório |
-| `docs/PT/` e `docs/EN/` | Documentação técnica bilíngue |
+| `docs/EN/` e `docs/PT/` | Documentação técnica bilíngue sob contrato semântico em `docs/metadata.json` |
 | `tests/` | Sketches diagnósticos isolados para Wokwi web |
 | `report/` | Relatório técnico em LaTeX e PDF |
 
 ## Validação
 
-A consistência estática entre `config/`, artefatos gerados, firmware e circuito pode ser verificada com:
+A consistência estática entre `config/`, artefatos gerados, firmware, circuito e paridade EN/PT pode ser verificada com:
 
 ```text
 python tools/generate_project_config.py --check
