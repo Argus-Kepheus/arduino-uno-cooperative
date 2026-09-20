@@ -32,7 +32,9 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 |---|---|
 | `sketch.ino` + módulos `*.h` | Firmware Arduino/C++ (escalonador, botões, métricas, displays) |
 | `config/` | Fontes canônicas de hardware, runtime, contratos AVR e toolchain |
-| `project_config.h` | Header gerado a partir de `config/` e consumido pelo firmware |
+| `project_config.h` | Header gerado de configuração consumido pelo firmware |
+| `avr_contracts.h` | Contratos AVR gerados e `static_assert` de segurança arquitetural |
+| `avr_fast_io.h` | Única camada de implementação com acessos diretos `PORTD`/`PINC`/`PORTC` |
 | `diagram.json` | Circuito e geometria/layout do Wokwi; semântica elétrica validada contra `config/hardware.json` |
 | `libraries.txt` | Lista gerada de dependências do Wokwi |
 | `tools/` | Geração determinística e validação estática do repositório |
@@ -45,6 +47,9 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 A consistência estática entre `config/`, artefatos gerados, firmware e circuito pode ser verificada com:
 
 ```text
+python tools/generate_project_config.py --check
+python tools/generate_avr_contracts.py --check
+python tools/generate_libraries.py --check
 python tools/validate_repository.py
 ```
 
