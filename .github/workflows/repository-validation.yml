@@ -66,6 +66,9 @@ jobs:
       - name: Check generated documentation
         run: python tools/generate_docs.py --check
 
+      - name: Run automated host tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
       - name: Validate repository consistency
         run: python tools/validate_repository.py
 
