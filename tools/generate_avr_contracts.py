@@ -59,6 +59,24 @@ def render_avr_contracts(hardware: dict, runtime: dict, avr: dict) -> str:
     if heartbeat_pin != fast["scheduler_heartbeat"]["arduino_pin"]:
         raise ValueError("Heartbeat pin disagrees with AVR fast-I/O contract")
 
+    spi = hardware["buses"]["tft_spi"]
+    hardware_spi = avr["spi_relationships"]["hardware_spi_pins"]
+    if spi["mode"] != "software" or spi["miso"] is not None:
+        raise ValueError("Current AVR contract requires write-only software SPI")
+    if spi["mosi"]["arduino_pin"] != hardware_spi["mosi"]:
+        raise ValueError("TFT MOSI disagrees with ATmega328P hardware-SPI mapping")
+    if spi["sck"]["arduino_pin"] != hardware_spi["sck"]:
+        raise ValueError("TFT SCK disagrees with ATmega328P hardware-SPI mapping")
+    if components["status_leds"]["display_idle"]["arduino_pin"] != hardware_spi["miso"]:
+        raise ValueError("Display-idle LED must occupy hardware-MISO/D12")
+
+    i2c = hardware["buses"]["oled_i2c"]
+    twi = avr["i2c_relationships"]["hardware_twi_pins"]
+    if i2c["sda"]["arduino_pin"] != twi["sda"]:
+        raise ValueError("OLED SDA disagrees with ATmega328P TWI mapping")
+    if i2c["scl"]["arduino_pin"] != twi["scl"]:
+        raise ValueError("OLED SCL disagrees with ATmega328P TWI mapping")
+
     led_bits = fast["blue_leds"]["avr_bits"]
     if led_bits != list(range(led_bits[0], led_bits[0] + len(led_bits))):
         raise ValueError("Blue LED AVR bits must be contiguous")
@@ -131,6 +149,12 @@ def render_avr_contracts(hardware: dict, runtime: dict, avr: dict) -> str:
         '              "Increase button pin violates AVR PINC contract");',
         f"static_assert(Config::SCHEDULER_HEARTBEAT_LED_PIN == A{analog_pin_index(heartbeat_pin)},",
         '              "Heartbeat pin violates AVR PORTC contract");',
+        f"static_assert(Config::TFT_MOSI_PIN == {digital_pin_number(spi['mosi']['arduino_pin'])},",
+        '              "TFT MOSI violates AVR SPI relationship");',
+        f"static_assert(Config::DISPLAY_IDLE_LED_PIN == {digital_pin_number(hardware_spi['miso'])},",
+        '              "Display-idle LED must remain on hardware MISO/D12");',
+        f"static_assert(Config::TFT_SCK_PIN == {digital_pin_number(spi['sck']['arduino_pin'])},",
+        '              "TFT SCK violates AVR SPI relationship");',
         "static_assert(AvrContracts::BLINK_INTERVAL_SCALE_BASE == 2,",
         '              "currentBlinkIntervalMs() requires a power-of-two x2 scale");',
         "static_assert(AvrContracts::MAX_CONFIGURED_SCHEDULER_PERIOD_MS <",
