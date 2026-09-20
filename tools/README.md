@@ -70,6 +70,28 @@ The Wokwi library-list format does not support comments, so the generated-file
 status is documented here and enforced by validation rather than embedded in
 `libraries.txt`.
 
+## Generate documentation
+
+```text
+python tools/generate_docs.py
+python tools/generate_docs.py --write
+python tools/generate_docs.py --check
+```
+
+Inputs:
+
+- `config/hardware.json`
+- `config/runtime.json`
+- `config/avr.json`
+- `config/toolchain.json`
+
+Outputs are generated regions inside selected EN/PT Markdown documents. The
+generator owns only repeated technical facts; explanatory prose remains manual.
+
+The current generated regions cover baseline technical inventory, pin mapping,
+display configuration, scheduler contracts/registration order, task periods,
+blink intervals and runtime/SRAM/UART values.
+
 ## Validate repository
 
 ```text
@@ -92,7 +114,8 @@ The validator checks:
 - the current button debounce default and TFT rotation;
 - Wokwi project URL consistency;
 - multilingual documentation parity from `docs/metadata.json` (document IDs,
-  language markers, shared revisions and semantic-section sequence).
+  language markers, shared revisions and semantic-section sequence);
+- byte-exact generated documentation regions from canonical `config/` data.
 
 A successful result is a **static consistency result**. It does not prove that
 the integrated sketch has executed successfully in Wokwi or on physical
@@ -108,6 +131,7 @@ edit config/*.json
 python tools/generate_project_config.py --write
 python tools/generate_avr_contracts.py --write
 python tools/generate_libraries.py --write
+python tools/generate_docs.py --write
 python tools/validate_repository.py
 ```
 
