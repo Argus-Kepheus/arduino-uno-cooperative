@@ -24,6 +24,32 @@ Output:
 The generated header preserves the public `Config::...` names consumed by the
 existing firmware. The Uno does not parse JSON at runtime.
 
+## Generate AVR contracts
+
+```text
+python tools/generate_avr_contracts.py
+python tools/generate_avr_contracts.py --write
+python tools/generate_avr_contracts.py --check
+```
+
+Inputs:
+
+- `config/hardware.json`
+- `config/runtime.json`
+- `config/avr.json`
+
+Output:
+
+- `avr_contracts.h`
+
+The generated header exposes scheduler limits and fast-I/O bit contracts and
+adds compile-time assertions for the ATmega328P/16 MHz target, D2–D7 blue-LED
+mapping, A0–A2 button mapping, A3 heartbeat mapping and D11/D12/D13 SPI
+relationship.
+
+`avr_fast_io.h` consumes those contracts and is the single implementation
+boundary for direct `PORTD`, `PINC` and `PORTC` accesses.
+
 ## Generate library list
 
 ```text
@@ -78,6 +104,7 @@ For a configuration change:
 ```text
 edit config/*.json
 python tools/generate_project_config.py --write
+python tools/generate_avr_contracts.py --write
 python tools/generate_libraries.py --write
 python tools/validate_repository.py
 ```
