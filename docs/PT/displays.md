@@ -1,6 +1,6 @@
 <!-- doc-id: displays -->
 <!-- language: PT -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # Subsistema de Displays
 
@@ -12,12 +12,18 @@ A arquitetura fixa a alternativa A:
 - **ILI9341**: interface visual principal;
 - **SSD1306**: painel diagnóstico compacto.
 
+<!-- BEGIN GENERATED: display-summary -->
+| Display | Interface | Ligações canônicas | Geometria / temporização |
+|---|---|---|---|
+| ILI9341 | software SPI | D/C D9, CS D10, MOSI D11, SCK D13 | 240×320 nativo; rotação 1 -> 320×240 lógico |
+| SSD1306 | I2C (hardware) | SDA A4, SCL A5 | 128×64; endereço 0x3C; atualização 1000 ms |
+<!-- END GENERATED: display-summary -->
+
 <!-- section: ili9341 -->
 ## ILI9341
 
-A TFT usa D9 (D/C), D10 (CS), D11 (MOSI) e D13 (SCK). A versão-base utiliza o
-caminho de SPI por software da biblioteca Adafruit, preservando D12 para o LED
-laranja.
+A TFT segue o caminho de SPI por software resumido acima, preservando o pino de
+MISO de hardware para o LED laranja de atividade.
 
 Para compensar o custo de CPU, o firmware:
 
@@ -31,9 +37,9 @@ Para compensar o custo de CPU, o firmware:
 <!-- section: ssd1306 -->
 ## SSD1306
 
-O OLED usa A4/SDA e A5/SCL, endereço `0x3C`, por I2C de hardware. A biblioteca
-`SSD1306Ascii` evita reservar 1024 bytes de framebuffer. O painel mostra apenas
-estado diagnóstico resumido e é atualizado aproximadamente uma vez por segundo.
+O OLED usa a configuração de I2C de hardware resumida acima. A biblioteca
+`SSD1306Ascii` evita reservar um framebuffer de 1024 bytes e mantém um painel
+diagnóstico compacto.
 
 <!-- section: visual-snapshot -->
 ## Snapshot visual
@@ -44,15 +50,18 @@ mesmo ciclo utilizam essa cópia; amostras mais novas esperam o ciclo terminar.
 <!-- section: display-activity-led -->
 ## LED laranja
 
-D12 fica HIGH quando o subsistema visual está logicamente ocioso e LOW dentro de
-operações delimitadas por `busyBegin()`/`busyEnd()`. É um indicador de software,
-não um analisador de barramento.
+O indicador de atividade fica HIGH quando o subsistema visual está
+logicamente ocioso e LOW dentro de operações delimitadas por
+`busyBegin()`/`busyEnd()`. Seu pino atual pertence a
+`config/hardware.json`; é um indicador de software, não um analisador de
+barramento.
 
 <!-- section: builtin-led -->
 ## LED L
 
-D13 também aciona o LED `L` da placa; assim, atividade de clock da TFT pode ser
-visível no LED integrado.
+O pino de clock da TFT também aciona o LED `L` da placa; por isso, atividade
+de clock pode ser visível no LED integrado. A relação de pinos atual é gerada a
+partir da configuração canônica de hardware.
 
 <!-- section: functional-priority -->
 ## Prioridade funcional
