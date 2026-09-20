@@ -87,3 +87,41 @@ The repository validator rejects:
 
 Wave 4 establishes parity governance only. Numeric/documentation deduplication
 and generated documentation regions are intentionally deferred to Wave 5.
+
+
+## Generated technical regions
+
+Wave 5 removes manual maintenance of frequently repeated configuration facts.
+Generated regions use:
+
+```text
+<!-- BEGIN GENERATED: region-name -->
+...
+<!-- END GENERATED: region-name -->
+```
+
+They are rendered from `config/hardware.json`, `config/runtime.json`,
+`config/avr.json` and `config/toolchain.json` by
+`tools/generate_docs.py`.
+
+Current generated owners include:
+
+- project baseline hardware/task/library summary;
+- canonical pin map;
+- display wiring, geometry and refresh summary;
+- scheduler capacity/time-domain/registration-order summary;
+- technical-spec task periods, blink intervals and runtime/SRAM/UART summary.
+
+The surrounding prose remains manually maintained because it explains design
+intent, tradeoffs, limitations and acceptance semantics rather than duplicating
+configuration values.
+
+After changing `config/`, run:
+
+```text
+python tools/generate_docs.py --write
+python tools/validate_repository.py
+```
+
+The validator checks generated regions byte-for-byte and also preserves the
+EN/PT semantic-parity contract.
