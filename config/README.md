@@ -145,3 +145,15 @@ paths (`PORTD`, `PINC`, `PORTC`). It also provides portable
 Changing a pin involved in a fast path therefore requires a coherent canonical
 configuration update; otherwise generation, static validation or compilation
 will reject the change.
+
+
+## Continuous validation after Wave 8
+
+The repository workflow reads the pinned Arduino CLI version directly from
+`config/toolchain.json`; it does not maintain a second CLI version constant in
+YAML. The workflow then runs all generator checks, repository validation and
+the profile-isolated integrated firmware compilation.
+
+This makes `config/toolchain.json` authoritative for both local and CI builds.
+A successful CI compilation is still distinct from Wokwi runtime validation
+and physical-board validation.
