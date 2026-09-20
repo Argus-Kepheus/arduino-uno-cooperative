@@ -22,9 +22,8 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
    `.h` e `libraries.txt` em um projeto Arduino Uno.
 2. Inicie a simulação.
 3. Use os botões para alternar o LED verde e ajustar o intervalo compartilhado
-   dos seis LEDs azuis (125-4000 ms).
-4. Acompanhe métricas em tempo real na TFT, no OLED e no monitor serial
-   (115200 baud).
+   dos seis LEDs azuis.
+4. Acompanhe métricas em tempo real na TFT, no OLED e no monitor serial.
 
 ## Estrutura
 
@@ -50,6 +49,7 @@ A consistência estática entre `config/`, artefatos gerados, firmware, circuito
 python tools/generate_project_config.py --check
 python tools/generate_avr_contracts.py --check
 python tools/generate_libraries.py --check
+python tools/generate_docs.py --check
 python tools/validate_repository.py
 ```
 
