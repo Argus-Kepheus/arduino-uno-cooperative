@@ -24,6 +24,7 @@ static const uint8_t TFT_DC_PIN = 9;
 static const uint8_t TFT_CS_PIN = 10;
 static const uint8_t TFT_MOSI_PIN = 11;
 static const uint8_t TFT_SCK_PIN = 13;
+static const uint8_t TFT_ROTATION = 1;
 
 // Display activity indicator
 static const uint8_t DISPLAY_IDLE_LED_PIN = 12;
