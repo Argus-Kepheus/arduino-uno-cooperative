@@ -1,5 +1,10 @@
+<!-- doc-id: validation-checklist -->
+<!-- language: PT -->
+<!-- content-revision: 1 -->
+
 # Checklist de Validação
 
+<!-- section: build-startup -->
 ## Compilação e inicialização
 
 - [ ] Compila para Arduino Uno R3 no Wokwi web.
@@ -11,6 +16,7 @@
 - [ ] LED amarelo apresenta heartbeat.
 - [ ] LED laranja retorna a HIGH após inicialização.
 
+<!-- section: blue-leds -->
 ## LEDs azuis
 
 - [ ] LEDs 1 a 6 piscam.
@@ -19,6 +25,7 @@
 - [ ] Funcionam em 125, 250, 500, 1000, 2000 e 4000 ms.
 - [ ] Limites inferior e superior são respeitados.
 
+<!-- section: buttons -->
 ## Botões
 
 - [ ] Botão principal controla o LED verde após debounce.
@@ -27,6 +34,7 @@
 - [ ] Manter botão de intervalo pressionado não repete ação.
 - [ ] Não existe `delay()` no debounce.
 
+<!-- section: scheduler -->
 ## Escalonador
 
 - [ ] Heartbeat em A3 permanece visível.
@@ -36,6 +44,7 @@
 - [ ] `OVR` é observável.
 - [ ] O sistema atravessa `65535 ms -> 0 ms` sem parar ou disparar tarefas em rajada.
 
+<!-- section: tft -->
 ## TFT
 
 - [ ] Usa D9/D10/D11/D13 em SPI por software.
@@ -45,6 +54,7 @@
 - [ ] Valores inalterados não são continuamente redesenhados.
 - [ ] Não há `fillScreen()` durante operação normal.
 
+<!-- section: oled -->
 ## OLED
 
 - [ ] Usa A4/SDA e A5/SCL.
@@ -53,6 +63,7 @@
 - [ ] Atualiza aproximadamente a 1 Hz.
 - [ ] Ausência do OLED não paralisa a aplicação.
 
+<!-- section: indicators -->
 ## Indicadores
 
 - [ ] D12 aciona o LED laranja.
@@ -60,6 +71,7 @@
 - [ ] A3 aciona o heartbeat amarelo.
 - [ ] LED `L` em D13 pode refletir clock da TFT sem ser interpretado como erro.
 
+<!-- section: sram -->
 ## SRAM
 
 Registrar:
@@ -74,6 +86,7 @@ RAM LOW:
 - [ ] Preferencialmente RAM LOW permanece >= 512 bytes.
 - [ ] Não há queda progressiva inexplicada.
 
+<!-- section: integrated-stress -->
 ## Estresse integrado
 
 - [ ] Intervalo de 125 ms com TFT, OLED e serial ativos.
@@ -84,6 +97,7 @@ RAM LOW:
 - [ ] Serial permanece funcional durante carga gráfica.
 - [ ] Heartbeat permanece contínuo.
 
+<!-- section: result-record -->
 ## Registro de resultado
 
 Data:
