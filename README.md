@@ -40,7 +40,7 @@ diagnóstico, uma TFT ILI9341 principal e instrumentação de tempo e SRAM.
 | `.github/workflows/` | CI para validação e compilação real do firmware integrado |
 | `docs/EN/` e `docs/PT/` | Documentação técnica bilíngue sob contrato semântico em `docs/metadata.json` |
 | `diagnostics/` | Diagnósticos manuais isolados para Wokwi/hardware, governados por `diagnostics/metadata.json` |
-| `tests/` | Reservado para futuros testes automatizados host-side |
+| `tests/` | Suíte automatizada CPython (`unittest`) para regressão host-side |
 | `report/` | Relatório técnico em LaTeX e PDF |
 
 ## Build reproduzível
@@ -54,6 +54,18 @@ python tools/build_firmware.py
 
 O comando cria apenas staging/artefatos sob `build/`; `sketch.ino` permanece
 inalterado para o workflow do Wokwi.
+
+## Testes automatizados
+
+A suíte host-side usa somente a biblioteca padrão do Python:
+
+```text
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Ela cobre geradores/configuração, contrato documental e fronteiras de source.
+Os diagnósticos manuais de Wokwi/hardware continuam separados em
+`diagnostics/`.
 
 ## Integração contínua
 
@@ -77,8 +89,8 @@ python tools/validate_repository.py
 
 A pasta `diagnostics/` contém sketches independentes que isolam partes do
 hardware (LEDs, botões, displays, escalonador). Eles são diagnósticos manuais e
-não substituem a validação integrada. O namespace `tests/` fica reservado para
-futura automação host-side. Para aceitação completa, use
+não substituem a validação integrada. O namespace `tests/` contém regressões host-side automatizadas e não
+interativas. Para aceitação completa, use
 `docs/PT/validation-checklist.md` (ou `docs/EN/validation-checklist.md`).
 
 ## Limitações

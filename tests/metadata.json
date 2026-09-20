@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "mode": "automated",
+  "framework": "python unittest",
+  "runner": "python -m unittest discover -s tests -p \"test_*.py\" -v",
+  "test_files": [
+    {
+      "file": "test_config_generation.py",
+      "scope": "deterministic generators, negative config cases and build profile"
+    },
+    {
+      "file": "test_documentation_contract.py",
+      "scope": "multilingual semantic parity and generated documentation regions"
+    },
+    {
+      "file": "test_source_contracts.py",
+      "scope": "source boundaries, diagnostics split and CI regression contracts"
+    }
+  ]
+}

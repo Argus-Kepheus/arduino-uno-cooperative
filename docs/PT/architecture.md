@@ -1,6 +1,6 @@
 <!-- doc-id: architecture -->
 <!-- language: PT -->
-<!-- content-revision: 3 -->
+<!-- content-revision: 4 -->
 
 # Arquitetura do Firmware
 
@@ -46,10 +46,13 @@ aplicação.
 - **Fronteira de build**: `tools/build_firmware.py` cria um sketch Arduino
   válido em staging e renderiza um profile isolado e pinado antes de invocar o
   Arduino CLI.
+- **Testes host automatizados**: `tests/` executa regressões CPython apenas com
+  biblioteca padrão para geradores, contratos semânticos da documentação e
+  fronteiras de source.
 - **Integração contínua**: `.github/workflows/repository-validation.yml`
-  executa verificações dos artefatos gerados, validação do repositório e uma
-  compilação real e isolada do Arduino Uno em pushes, pull requests e despacho
-  manual.
+  executa verificações dos artefatos gerados, testes host, validação do
+  repositório e uma compilação real e isolada do Arduino Uno em pushes, pull
+  requests e despacho manual.
 
 <!-- section: blue-leds -->
 ## Independência dos seis LEDs
