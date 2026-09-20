@@ -747,6 +747,8 @@ def main() -> int:
     if docs_metadata:
         check_documentation_parity(docs_metadata)
 
+    check_diagnostics_semantics()
+
     print("arduino-uno-cooperative repository validation")
     print(f"Errors: {len(ERRORS)}")
     for message in ERRORS:
