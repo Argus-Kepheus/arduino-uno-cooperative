@@ -90,7 +90,9 @@ The validator checks:
 - OLED/TFT buses, supply and address;
 - TFT software-SPI relationship with D12;
 - the current button debounce default and TFT rotation;
-- Wokwi project URL consistency.
+- Wokwi project URL consistency;
+- multilingual documentation parity from `docs/metadata.json` (document IDs,
+  language markers, shared revisions and semantic-section sequence).
 
 A successful result is a **static consistency result**. It does not prove that
 the integrated sketch has executed successfully in Wokwi or on physical
