@@ -1,3 +1,7 @@
+<!-- doc-id: project-overview -->
+<!-- language: EN -->
+<!-- content-revision: 1 -->
+
 # arduino-uno-cooperative
 
 **Language:** [English](README.md) | [Português](../PT/README.md)
@@ -10,6 +14,7 @@ instrumentation.
 
 The initial simulation target is **Wokwi in the web browser**.
 
+<!-- section: baseline-architecture -->
 ## Baseline architecture
 
 - Arduino Uno R3, ATmega328P, 16 MHz;
@@ -27,6 +32,7 @@ The initial simulation target is **Wokwi in the web browser**.
 - no `delay()` during normal operation;
 - no deliberate dynamic allocation during normal operation.
 
+<!-- section: documents -->
 ## Documents
 
 - [`technical-specification.md`](technical-specification.md) - requirements and acceptance criteria;
@@ -36,6 +42,7 @@ The initial simulation target is **Wokwi in the web browser**.
 - [`displays.md`](displays.md) - TFT/OLED strategy;
 - [`validation-checklist.md`](validation-checklist.md) - validation procedure.
 
+<!-- section: baseline-status -->
 ## Baseline status
 
 The project intentionally keeps the baseline readable and instrumentable.
