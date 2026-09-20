@@ -1,3 +1,7 @@
+<!-- doc-id: project-overview -->
+<!-- language: PT -->
+<!-- content-revision: 1 -->
+
 # arduino-uno-cooperative
 
 **Idioma:** [English](../EN/README.md) | [Português](README.md)
@@ -10,6 +14,7 @@ ILI9341 principal e instrumentação de tempo e SRAM.
 
 A simulação inicial é destinada ao **Wokwi no navegador**.
 
+<!-- section: baseline-architecture -->
 ## Arquitetura-base
 
 - Arduino Uno R3, ATmega328P, 16 MHz;
@@ -27,6 +32,7 @@ A simulação inicial é destinada ao **Wokwi no navegador**.
 - nenhum `delay()` durante a operação normal;
 - nenhuma alocação dinâmica deliberada durante a operação normal.
 
+<!-- section: documents -->
 ## Documentos
 
 - [`technical-specification.md`](technical-specification.md) - requisitos e critérios técnicos;
@@ -36,6 +42,7 @@ A simulação inicial é destinada ao **Wokwi no navegador**.
 - [`displays.md`](displays.md) - TFT, OLED e estratégia de atualização;
 - [`validation-checklist.md`](validation-checklist.md) - roteiro de validação.
 
+<!-- section: baseline-status -->
 ## Estado da versão-base
 
 O projeto deliberadamente preserva uma implementação legível e instrumentável.
