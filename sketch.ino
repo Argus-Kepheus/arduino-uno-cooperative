@@ -1,6 +1,8 @@
 #include <Arduino.h>
 
 #include "project_config.h"
+#include "avr_contracts.h"
+#include "avr_fast_io.h"
 #include "cooperative_scheduler.h"
 #include "button_debounce.h"
 #include "metrics.h"
@@ -25,8 +27,10 @@ TftDashboard tftDashboard;
 
 // The first six scheduler slots are intentionally reserved for the six
 // independent blue-LED tasks. This avoids a separate six-byte ID table.
-static const uint8_t BLUE_TASK_FIRST_ID = 0;
-static const uint8_t BLUE_TASK_COUNT = Config::BLUE_LED_COUNT;
+static const uint8_t BLUE_TASK_FIRST_ID =
+    AvrContracts::BLUE_TASK_FIRST_ID;
+static const uint8_t BLUE_TASK_COUNT =
+    AvrContracts::BLUE_TASK_COUNT;
 
 
 uint8_t blinkIntervalIndex =
@@ -50,31 +54,7 @@ bool displayCycleActive = false;
 
 void toggleBlueLed(uint8_t index) {
 
-  const uint8_t pin =
-      (uint8_t)(Config::BLUE_LED_FIRST_PIN + index);
-
-
-#if defined(__AVR__)
-
-  /*
-   * D2-D7 map to contiguous bits 2-7 of PORTD on the Uno (see
-   * project_config.h). A direct port XOR toggles the pin without the
-   * pin-to-port lookup and interrupt guard that digitalWrite() performs
-   * on every call.
-   */
-
-  PORTD ^=
-      (uint8_t)(1U << pin);
-
-#else
-
-  digitalWrite(
-      pin,
-      digitalRead(pin)
-          ? LOW
-          : HIGH);
-
-#endif
+  AvrFastIo::toggleBlueLed(index);
 }
 
 
@@ -145,38 +125,15 @@ void scanButtons() {
       (uint16_t)millis();
 
 
-#if defined(__AVR__)
+  bool mainRaw;
+  bool decreaseRaw;
+  bool increaseRaw;
 
-  /*
-   * The three button pins are A0-A2, contiguous PC0-PC2 on the Uno (see
-   * project_config.h). One port read replaces three digitalRead() calls
-   * in this 5 ms task, the most frequent in the firmware.
-   */
 
-  const uint8_t pinc =
-      PINC;
-
-  const bool mainRaw =
-      !(pinc & (1U << 0));
-
-  const bool decreaseRaw =
-      !(pinc & (1U << 1));
-
-  const bool increaseRaw =
-      !(pinc & (1U << 2));
-
-#else
-
-  const bool mainRaw =
-      digitalRead(Config::MAIN_BUTTON_PIN) == LOW;
-
-  const bool decreaseRaw =
-      digitalRead(Config::DECREASE_INTERVAL_BUTTON_PIN) == LOW;
-
-  const bool increaseRaw =
-      digitalRead(Config::INCREASE_INTERVAL_BUTTON_PIN) == LOW;
-
-#endif
+  AvrFastIo::sampleButtons(
+      mainRaw,
+      decreaseRaw,
+      increaseRaw);
 
 
   // Main button ---------------------------------------------------------------
@@ -470,28 +427,7 @@ void printStatus() {
 
 void schedulerHeartbeat() {
 
-#if defined(__AVR__)
-
-  /*
-   * Config::SCHEDULER_HEARTBEAT_LED_PIN is A3, which is PC3 on the Uno.
-   * A direct port XOR toggles the LED without digitalWrite()'s per-call
-   * pin-to-port lookup.
-   */
-
-  PORTC ^=
-      (uint8_t)(1U << 3);
-
-#else
-
-  digitalWrite(
-      Config::SCHEDULER_HEARTBEAT_LED_PIN,
-
-      digitalRead(
-          Config::SCHEDULER_HEARTBEAT_LED_PIN)
-          ? LOW
-          : HIGH);
-
-#endif
+  AvrFastIo::toggleSchedulerHeartbeat();
 }
 
 
