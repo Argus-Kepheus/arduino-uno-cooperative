@@ -105,6 +105,7 @@ def render_project_config(hardware: dict, runtime: dict, avr: dict) -> str:
         f"static const uint8_t TFT_CS_PIN = {digital_pin_number(tft['cs']['arduino_pin'])};",
         f"static const uint8_t TFT_MOSI_PIN = {digital_pin_number(tft['mosi']['arduino_pin'])};",
         f"static const uint8_t TFT_SCK_PIN = {digital_pin_number(tft['sck']['arduino_pin'])};",
+        f"static const uint8_t TFT_ROTATION = {components['displays']['tft']['configured_rotation']};",
         "",
         "// Display activity indicator",
         f"static const uint8_t DISPLAY_IDLE_LED_PIN = {digital(status['display_idle'])};",
