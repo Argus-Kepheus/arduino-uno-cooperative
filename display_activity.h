@@ -10,10 +10,10 @@ namespace DisplayActivity {
 
 
 /*
- * D12 is fixed by the project hardware.
- *
  * HIGH = display subsystem idle
  * LOW  = instrumented display operation in progress
+ *
+ * The physical pin is owned by the generated project configuration.
  */
 
 inline void begin() {
