@@ -115,12 +115,14 @@ The validator checks:
 - Wokwi project URL consistency;
 - multilingual documentation parity from `docs/metadata.json` (document IDs,
   language markers, shared revisions and semantic-section sequence);
-- byte-exact generated documentation regions from canonical `config/` data.
+- byte-exact generated documentation regions from canonical `config/` data;
+- manual-diagnostic inventory/order under `diagnostics/` and separation from
+  future automated `tests/`.
 
 A successful result is a **static consistency result**. It does not prove that
 the integrated sketch has executed successfully in Wokwi or on physical
-hardware. The standalone sketches currently under `tests/` remain manual
-diagnostics until the later diagnostics wave.
+hardware. Standalone manual hardware checks live under `diagnostics/`; the
+`tests/` namespace is reserved for future non-interactive automated tests.
 
 ## Normal edit workflow
 
