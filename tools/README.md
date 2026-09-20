@@ -159,12 +159,26 @@ The validator checks:
   language markers, shared revisions and semantic-section sequence);
 - byte-exact generated documentation regions from canonical `config/` data;
 - manual-diagnostic inventory/order under `diagnostics/` and separation from
-  future automated `tests/`.
+  automated host-side `tests/`;
+- automated-test inventory/runner contract under `tests/metadata.json`.
 
 A successful result is a **static consistency result**. It does not prove that
 the integrated sketch has executed successfully in Wokwi or on physical
 hardware. Standalone manual hardware checks live under `diagnostics/`; the
 `tests/` namespace is reserved for future non-interactive automated tests.
+
+## Automated host tests
+
+The host regression suite is standard-library-only:
+
+```text
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Its machine-readable inventory is `tests/metadata.json`. The suite covers
+positive and negative generator cases, documentation parity/generated regions,
+AVR/source boundaries, diagnostic/test separation and the CI regression
+contract itself.
 
 ## Continuous integration
 
@@ -178,8 +192,9 @@ For pushes to `main`, pull requests and manual dispatch it:
 3. reads the pinned Arduino CLI version from `config/toolchain.json`;
 4. installs that exact Arduino CLI version with the official Arduino action;
 5. checks every generated artifact/region;
-6. runs `tools/validate_repository.py`;
-7. runs `tools/build_firmware.py`, producing a real isolated Uno compilation.
+6. runs the automated host regression suite;
+7. runs `tools/validate_repository.py`;
+8. runs `tools/build_firmware.py`, producing a real isolated Uno compilation.
 
 The workflow has `contents: read` permissions and concurrency cancellation so
 obsolete runs for the same ref do not waste runner time.
