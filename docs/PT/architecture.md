@@ -1,6 +1,6 @@
 <!-- doc-id: architecture -->
 <!-- language: PT -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # Arquitetura do Firmware
 
@@ -40,6 +40,12 @@ aplicação.
 - **Instrumentação (`metrics.h`)**: APP BUSY, SRAM, PASS/s, MAX CALLBACK,
   MAX LATE e OVR.
 - **Apresentação**: `display_activity.h`, `oled_status.h` e `tft_dashboard.h`.
+- **Configuração canônica**: `config/*.json` mantém fatos de hardware, runtime,
+  AVR e toolchain; headers gerados expõem apenas os valores de compilação
+  necessários ao firmware.
+- **Fronteira de build**: `tools/build_firmware.py` cria um sketch Arduino
+  válido em staging e renderiza um profile isolado e pinado antes de invocar o
+  Arduino CLI.
 
 <!-- section: blue-leds -->
 ## Independência dos seis LEDs
@@ -82,5 +88,12 @@ permanece o canal diagnóstico principal.
 <!-- section: evolution-policy -->
 ## Política de evolução
 
-A versão-base prioriza clareza, observabilidade e baixo uso de SRAM. Otimizações
-agressivas permanecem separadas para permitir comparações futuras.
+A versão-base prioriza clareza, observabilidade, baixo uso de SRAM e builds
+reproduzíveis. A raiz mantém `sketch.ino` por compatibilidade com o Wokwi,
+enquanto a compilação pelo Arduino CLI ocorre a partir de um sketch temporário
+em staging cujo arquivo principal possui o mesmo nome da pasta, conforme a
+especificação de sketches Arduino.
+
+Versões do core/plataforma e das bibliotecas ficam pinadas em
+`config/toolchain.json`. Otimizações agressivas de runtime permanecem
+separadas para permitir comparações futuras.
