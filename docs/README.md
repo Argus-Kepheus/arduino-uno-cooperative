@@ -129,7 +129,8 @@ Manual Wokwi/physical-hardware checks live under `diagnostics/` and are
 governed by `diagnostics/metadata.json`. They are intentionally self-contained
 and may duplicate pin/timing values in order to isolate hardware independently.
 
-The `tests/` namespace is reserved for future host-side automated tests.
+The `tests/` namespace contains host-side automated CPython regressions,
+governed by `tests/metadata.json` and executed non-interactively in CI.
 Manual diagnostics and automated tests are different evidence layers and must
 not be mixed.
 
