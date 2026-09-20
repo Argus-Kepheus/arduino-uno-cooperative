@@ -1,6 +1,6 @@
 <!-- doc-id: technical-specification -->
 <!-- language: PT -->
-<!-- content-revision: 1 -->
+<!-- content-revision: 2 -->
 
 # Especificação Técnica
 
@@ -29,22 +29,25 @@ o `asyncio` do MicroPython. A restrição do ATmega328P - 8 bits, 16 MHz e apena
 <!-- section: tasks -->
 ## 3. Tarefas
 
+<!-- BEGIN GENERATED: task-periods -->
 | Tarefa | Período nominal | Função |
 |---|---:|---|
-| `blinkLed1` ... `blinkLed6` | 125-4000 ms | seis LEDs independentes |
-| `scanButtons` | 5 ms | leitura e debounce dos três botões |
-| `sampleMetrics` | 250 ms | consolidação das métricas |
-| `serviceDisplays` | 20 ms | pipeline incremental TFT/OLED |
-| `printStatus` | 1000 ms | status serial |
-| `schedulerHeartbeat` | 100 ms | heartbeat em A3 |
+| blinkLed1 ... blinkLed6 | 125–4000 ms | seis LEDs independentes |
+| scanButtons | 5 ms | leitura/debounce de três botões |
+| sampleMetrics | 250 ms | consolidar métricas |
+| serviceDisplays | 20 ms | pipeline incremental TFT/OLED |
+| printStatus | 1000 ms | status serial |
+| schedulerHeartbeat | 100 ms | heartbeat do escalonador |
 
 Total: **11 tarefas**.
+<!-- END GENERATED: task-periods -->
 
 <!-- section: blue-led-intervals -->
 ## 4. Intervalos dos LEDs
 
-Os seis LEDs compartilham o mesmo valor de período, mas mantêm tarefas próprias:
+Os seis LEDs compartilham o mesmo período configurado, mantendo tarefas independentes.
 
+<!-- BEGIN GENERATED: blink-intervals -->
 | Índice | Intervalo |
 |---:|---:|
 | 0 | 125 ms |
@@ -55,15 +58,33 @@ Os seis LEDs compartilham o mesmo valor de período, mas mantêm tarefas própri
 | 5 | 4000 ms |
 
 Valor inicial: **500 ms**.
+<!-- END GENERATED: blink-intervals -->
 
 <!-- section: inputs-debounce -->
 ## 5. Entradas e debounce
 
-Os três botões utilizam `INPUT_PULLUP`, portanto pressionado = LOW e solto =
-HIGH. O debounce nominal é de 30 ms, com amostragem a cada 5 ms. O botão
-principal reage a pressão e liberação; os dois botões de intervalo reagem
-somente à borda de pressão e não repetem automaticamente ao permanecerem
-pressionados.
+Os valores operacionais atuais são gerados a partir de
+`config/runtime.json`, `config/hardware.json` e `config/avr.json`:
+
+<!-- BEGIN GENERATED: runtime-summary -->
+| Propriedade de runtime | Valor canônico |
+|---|---|
+| Modo de entrada | INPUT_PULLUP |
+| Pressionado / solto | LOW / HIGH |
+| Varredura dos botões | 5 ms |
+| Debounce | 30 ms |
+| Auto-repeat | desativado |
+| SRAM física | 2048 bytes |
+| Meta de SRAM livre | >= 512 bytes |
+| Mínimo de SRAM livre | >= 400 bytes |
+| Baud serial | 115200 |
+| Período de status serial | 1000 ms |
+| UART | D0/RX, D1/TX |
+<!-- END GENERATED: runtime-summary -->
+
+O botão principal reage às bordas de pressão e liberação. Os botões de
+intervalo reagem somente à borda de pressão; a política de auto-repeat acima
+permanece autoritativa.
 
 <!-- section: displays -->
 ## 6. Displays
@@ -71,16 +92,16 @@ pressionados.
 <!-- section: ili9341 -->
 ### ILI9341
 
-Display principal, em orientação horizontal. Utiliza SPI por software para
-preservar D12 como GPIO. Funções: gráficos `APP BUSY` e SRAM livre, métricas,
-estado dos botões e console circular de eventos.
+Display principal em orientação horizontal. Sua pinagem e geometria canônicas
+são geradas em [`displays.md`](displays.md). Funções: gráficos `APP BUSY` e
+SRAM livre, métricas, estado dos botões e console circular de eventos.
 
 <!-- section: ssd1306 -->
 ### SSD1306
 
-Display diagnóstico compacto em I2C de hardware, endereço `0x3C`. Utiliza
-`SSD1306Ascii`, evitando um framebuffer de 1024 bytes. Atualização limitada a
-aproximadamente 1 Hz.
+Display diagnóstico compacto usando a configuração canônica de I2C de hardware
+gerada em [`displays.md`](displays.md). Utiliza `SSD1306Ascii`, evitando um
+framebuffer de 1024 bytes.
 
 <!-- section: metrics -->
 ## 7. Métricas
@@ -98,12 +119,9 @@ aproximadamente 1 Hz.
 <!-- section: sram -->
 ## 8. SRAM
 
-Meta desejável: **>= 512 bytes livres estimados**.
-
-Mínimo aceitável: **400 bytes**.
-
-Abaixo de 400 bytes, a configuração integrada não deve ser aprovada sem nova
-revisão.
+O tamanho físico da SRAM e os limiares operacionais de SRAM livre são gerados
+no resumo de runtime acima. Abaixo do mínimo configurado, a configuração
+integrada não deve ser aprovada sem nova revisão.
 
 Devem ser evitados `String`, `new`, `malloc`, containers dinâmicos e grandes
 buffers gráficos durante a operação normal.
@@ -111,8 +129,9 @@ buffers gráficos durante a operação normal.
 <!-- section: communication -->
 ## 9. Comunicação
 
-UART: 115200 baud, D0/RX e D1/TX reservados. O monitor serial deve continuar
-funcionando mesmo quando os displays apresentarem limitações ou falhas.
+A taxa UART e os pinos reservados são gerados no resumo de runtime acima. O
+monitor serial deve continuar funcionando mesmo quando os displays apresentarem
+limitações ou falhas.
 
 <!-- section: acceptance-criteria -->
 ## 10. Critérios de aceitação
